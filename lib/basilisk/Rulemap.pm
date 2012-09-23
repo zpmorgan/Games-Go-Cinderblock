@@ -498,10 +498,10 @@ sub delta{
       if ($fore ne $afte){
          my $n = $self->node_to_string($node);
          if (!$fore){
-            push @add, [stone => $node];
+            push @add, [$afte => $node];
          }
          elsif (!$afte){
-            push @remove, [stone => $node];
+            push @remove, [$fore => $node];
          }
          else{
             die 'replacement? no thanks.';
