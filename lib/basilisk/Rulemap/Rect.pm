@@ -12,12 +12,12 @@ has w  => ( #width
    isa => 'Int',
    default => '19'
 );
-has wrap_ns => ( #cylinder/torus
+has wrap_v => ( #cylinder/torus
    is => 'ro',
    isa => 'Bool',
    default => 0,
 );
-has wrap_ew => (
+has wrap_h => (
    is => 'ro',
    isa => 'Bool',
    default => 0,
@@ -65,7 +65,7 @@ sub node_liberties{
    my ($self, $node) = @_;
    my ($row, $col) = @$node;
    my @nodes;
-   if ($self->wrap_ns){
+   if ($self->wrap_v){
       push @nodes, [($row-1)% $self->h, $col];
       push @nodes, [($row+1)% $self->h, $col];
    }
@@ -74,7 +74,7 @@ sub node_liberties{
       push @nodes, [$row+1, $col] unless $row == $self->h-1;
    }
    
-   if ($self->wrap_ew){
+   if ($self->wrap_h){
       push @nodes, [$row, ($col-1)% $self->w];
       push @nodes, [$row, ($col+1)% $self->w];
    }
