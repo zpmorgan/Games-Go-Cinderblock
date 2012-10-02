@@ -76,6 +76,12 @@ sub stone_at_node{ die $blah}
 sub all_nodes{ die $blah}
 sub copy_board{ die $blah}
 
+sub normalize_board_to_string{ # to hash for ko collisions..
+   my ($self,$board) = @_;
+   my @all_nodes = $self->all_nodes;
+   my @all_stones = map {$self->stone_at_node($board, $_) || 0} @all_nodes;
+   return join '', @all_stones;
+}
 
 sub evaluate_move{
    my ($self, $board, $node, $side) = @_;
