@@ -19,9 +19,9 @@ has basis_state=> (
 );
 
 has resulting_state=> (
-   lazy => 1,
+   #lazy => 1,
    is => 'ro',
-   builder => '_derive_resulting_state',
+   #builder => '_derive_resulting_state',
    isa => 'Basilisk::State',
 );
 has delta => (
@@ -37,9 +37,14 @@ has succeeded => (
    lazy => 1,
    builder => '_determine_success',
 );
+has reason => (
+   isa => 'Str',
+   is => 'ro',
+   required => 0,
+);
 
 sub _derive_delta{}
-sub _derive_resulting_state{
+sub _FOO_derive_resulting_state{
    my $self = shift;
    return $self->basis_state;
 }

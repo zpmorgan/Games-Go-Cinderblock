@@ -1,4 +1,5 @@
 package Basilisk::Rulemap;
+use 5.16.0;
 use Moose;
 
 use Basilisk::NodeSet;
@@ -91,6 +92,7 @@ sub normalize_board_to_string{ # to hash for ko collisions..
    my @all_stones = map {$self->stone_at_node($board, $_) || 0} @all_nodes;
    return join '', @all_stones;
 }
+# use Carp::Always;
 
 sub evaluate_move_attempt{
    my ($self, $move_attempt) = @_;
@@ -100,14 +102,24 @@ sub evaluate_move_attempt{
    my $color = $move_attempt->color;
    # my ($self, $board, $node, $color) = @_;
    die "bad color $color" unless $color=~ /^[bw]$/;
-   
+   die "bad node @$node" unless $self->node_is_valid($node);
+  
+   my %failure_template = (
+      rulemap => $self,
+      basis_state => $basis,
+      move_attempt => $move_attempt,
+      succeeded => 0, 
+   );
    if ($self->stone_at_node ($board, $node)){
       return Basilisk::MoveResult->new(
-         rulemap => $self,
-         basis_state => $basis,
-         move_attempt => $move_attempt,
-         succeeded => 0, 
+         %failure_template,
          reason => "stone exists at ". $self->node_to_string($node)
+      ); 
+   }
+   if ($color ne $basis->turn){
+      return Basilisk::MoveResult->new(
+         %failure_template,
+         reason => "color $color (not) played during turn " .$basis->turn,
       ); 
    }
    
@@ -130,6 +142,11 @@ sub evaluate_move_attempt{
    for my $cap(@$caps){ # just erase captured stones
       $self->set_stone_at_node ($newboard, $cap, 0);
    }
+   my $res_stt = Basilisk::State->new(
+      rulemap => $self,
+      board => $newboard,
+      turn => (($color eq 'b') ? 'w' : 'b'),
+   );
    #return ($newboard, '', $caps);#no err
    return Basilisk::MoveResult->new(
       rulemap => $self,
@@ -137,12 +154,12 @@ sub evaluate_move_attempt{
       move_attempt => $move_attempt,
       succeeded => 1,
       caps => $caps,
-      newboard => $newboard,
+      resulting_state => $res_stt,
    ); 
    #node is returned to make this method easier to override for heisenGo
 }
 
-#uses a floodfill algorithm
+#uses a floodfill algorithm, #TODO: absorb. generic.
 #returns (string, liberties, adjacent_foes)
 sub get_chain { #for all board types
    my ($self, $board, $node1) = @_; #start row/column
@@ -241,7 +258,7 @@ sub get_empty_space{
    return (\@found, \@adjacent_stones);
 }
 
-
+# TODO: absorb into generic flood fill
 #take a list of stones, returns those which have no libs, as chains
 sub find_captured{
    my ($self, $board, $nodes) = @_;

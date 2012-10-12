@@ -5,6 +5,7 @@ use Basilisk::Rulemap;
 use Basilisk::Rulemap::Rect;
 #use Basilisk::State;
 #use Basilisk::NodeSet;
+use Test::Exception;
 
 my $rect_rm = Basilisk::Rulemap::Rect->new(
    w=>4,
@@ -58,7 +59,7 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
 # try some failures.
 {
    my $state = Basilisk::State->new(
-      ruleset => Basilisk::Ruleset->new(h=>2,w=>6),
+      rulemap => Basilisk::Rulemap::Rect->new(h=>2,w=>6),
       turn => 'b',
       board => [
          [qw/w w w 0 b b/],
@@ -66,7 +67,7 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
       ],
    );
    # first a bunch of invalid/failing nodes,
-   my @badnodes = ([0,0],[0,5],[1,0],[0,-1],[-1,0],[1,3],[2,2],[1,6]);
+   my @badnodes = ([0,0],[0,5],[1,0],[1,3]);
    my @badnode_res = map { $state->attempt_move(
       color => 'b',
       node => $_,
@@ -78,6 +79,11 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
    is($badnode_res[0]->failed, 1, 'failed is 0 ifn\'t succeeded.');
    is($badnode_res[0]->resulting_state, undef, 'resulting state from failure is undefined.');
 
+   my @illegal_nodes = ([0,-1],[-1,0],[2,2],[1,6]);
+   for my $i_n (@illegal_nodes){
+      dies_ok { $state->attempt_move(color=>'b', node=> $i_n) } 'illegal node';
+   }
+
    #now try the wrong color.
    my $badcolor_res = $state->attempt_move(node => [0,3], color => 'w');
    is ($badcolor_res->failed, 1, 'bad color fails.');
@@ -87,7 +93,7 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
 # try some captures. toroidal.
 {
    my $state = Basilisk::State->new(
-      ruleset => Basilisk::Ruleset->new(h=>5,w=>4, wrap_h=>1, wrap_v=>1),
+      rulemap=> Basilisk::Rulemap::Rect->new(h=>5,w=>4, wrap_h=>1, wrap_v=>1),
       turn => 'w',
       board => [
          [qw/w b 0 w/],
@@ -111,11 +117,12 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
          [qw/b 0 0 b/],
       ], 'w cap works.');
 
-   my $cap2_res = $state->attempt_move(
+   my $cap2_res = $state_after_w_tesuji->attempt_move(
       color => 'b',
       node => [0,2],
    );
-   is ($cap1_res->succeeded, 1, 'cap2 succeeds.');
+   is ($cap2_res->succeeded, 1, 'cap2 succeeds.');
+   diag $cap2_res->reason if $cap2_res->failed;
    my $state_after_b_tesuji = $cap2_res->resulting_state;
    is_deeply ($state_after_b_tesuji->board, [
          [qw/0 b b 0/],

@@ -1,4 +1,5 @@
 package Basilisk::Rulemap::Rect;
+use 5.16.0;
 use Moose;
 extends 'Basilisk::Rulemap';
 
@@ -103,5 +104,22 @@ sub pretty_coordinates{ #convert 1-1 to b18, etc
    $row = $self->h - $row;
    
    return "$col$row";
+}
+
+use Scalar::Util::Numeric qw(isint);
+
+sub node_is_valid{
+   my ($self, $node) = @_;
+   my ($row,$col) = @$node;
+   #check bounds
+   return 0 if 
+      $row < 0
+      or $col < 0
+      or $row >= ($self->h)
+      or $col >= ($self->w);
+   #check integeritude.. for row & col.
+   return 0 unless isint $row;
+   return 0 unless isint $col;
+   return 1;
 }
 1;
