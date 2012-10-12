@@ -27,11 +27,15 @@ sub attempt_move{
    my $self = shift;
    my %args = @_;
    my $success = 1;
-   my $result = Basilisk::MoveResult->new(
-      rulemap => $self->rulemap,
+   my $attempt = Basilisk::MoveAttempt->new(
       basis_state => $self,
+      rulemap => $self->rulemap,
+      node => $args{node},
+      color => $args{color},
       move_attempt => \%args,
    );
+   my $result = $self->rulemap->evaluate_move_attempt($attempt);
+   return $result;
 }
 
 1;

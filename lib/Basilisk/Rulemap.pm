@@ -4,6 +4,8 @@ use Moose;
 use Basilisk::NodeSet;
 use Basilisk::State;
 use Basilisk::Scorable;
+use Basilisk::MoveAttempt;
+use Basilisk::MoveResult;
 
 use Basilisk::Rulemap::Rect;
 use List::MoreUtils qw/all/;
@@ -60,7 +62,7 @@ has ko_rule => (
 );
 
 # to be extended to fog, atom, etc
-sub apply_rule_role{
+sub FOO_apply_rule_role{
    my ($self, $rule, $param) = @_;
    if ($rule =~ /^heisengo/){
       Basilisk::Rulemap::Heisengo::apply ($self, $param);
@@ -73,7 +75,7 @@ sub apply_rule_role{
 
 
 #These must be implemented in a subclass
-my $blah = 'use a subclass instead of Basilisk::Rulemap';
+my $blah = 'use a topo subclass such as ::Rect instead of Basilisk::Rulemap';
 sub move_is_valid{ die $blah}
 sub node_to_string{ die $blah}
 sub node_from_string{ die $blah}
@@ -90,27 +92,53 @@ sub normalize_board_to_string{ # to hash for ko collisions..
    return join '', @all_stones;
 }
 
-sub evaluate_move{
-   my ($self, $board, $node, $side) = @_;
-   die "bad side $side" unless $side =~ /^[bwr]$/;
+sub evaluate_move_attempt{
+   my ($self, $move_attempt) = @_;
+   my $basis = $move_attempt->basis_state;
+   my $board = $basis->board;
+   my $node = $move_attempt->node;
+   my $color = $move_attempt->color;
+   # my ($self, $board, $node, $color) = @_;
+   die "bad color $color" unless $color=~ /^[bw]$/;
    
    if ($self->stone_at_node ($board, $node)){
-      return (undef,"stone exists at ". $self->node_to_string($node)); }
+      return Basilisk::MoveResult->new(
+         rulemap => $self,
+         basis_state => $basis,
+         move_attempt => $move_attempt,
+         succeeded => 0, 
+         reason => "stone exists at ". $self->node_to_string($node)
+      ); 
+   }
    
    #produce copy of board for evaluation -> add stone at $node
    my $newboard = $self->copy_board ($board);
-   $self->set_stone_at_node ($newboard, $node, $side);
+   $self->set_stone_at_node ($newboard, $node, $color);
    # $chain is a list of strongly connected stones,
    # and $foes=enemies,$libs=liberties adjacent to $chain
    my ($chain, $libs, $foes) = $self->get_chain($newboard, $node);
    my $caps = $self->find_captured ($newboard, $foes);
    if (@$libs == 0 and @$caps == 0){
-      return (undef,'suicide');
+      return Basilisk::MoveResult->new(
+         rulemap => $self,
+         basis_state => $basis,
+         move_attempt => $move_attempt,
+         succeeded => 0, 
+         reason => "suicide",
+      ); 
    }
    for my $cap(@$caps){ # just erase captured stones
       $self->set_stone_at_node ($newboard, $cap, 0);
    }
-   return ($newboard, '', $caps);#no err
+   #return ($newboard, '', $caps);#no err
+   return Basilisk::MoveResult->new(
+      rulemap => $self,
+      basis_state => $basis,
+      move_attempt => $move_attempt,
+      succeeded => 1,
+      caps => $caps,
+      newboard => $newboard,
+   ); 
    #node is returned to make this method easier to override for heisenGo
 }
 
@@ -368,7 +396,7 @@ sub all_sides{
    my $self = shift;
    my $pd = $self->phase_description;
    my %s;
-   while($pd=~/([bwr])/g){
+   while($pd=~/([bw])/g){
       $s{$1}=1
    }
    return keys %s;
