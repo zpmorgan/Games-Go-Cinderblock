@@ -1,6 +1,6 @@
-package basilisk::Rulemap::Graph;
+package Basilisk::Rulemap::Graph;
 use Moose;
-extends 'basilisk::Rulemap';
+extends 'Basilisk::Rulemap';
 
 #TODO: perhaps subclasses for polyhedra, streetmaps, lattice, & custom
 # nodes are represented as an integer,

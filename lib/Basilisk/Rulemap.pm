@@ -1,10 +1,11 @@
-package basilisk::Rulemap;
-
+package Basilisk::Rulemap;
 use Moose;
-#use MooseX::Method::Signatures;
 
-use basilisk::Rulemap::Rect;
-#use basilisk::Util;
+use Basilisk::NodeSet;
+use Basilisk::State;
+use Basilisk::Scorable;
+
+use Basilisk::Rulemap::Rect;
 use List::MoreUtils qw/all/;
 
 # This class evaluates moves and determines new board positions.
@@ -16,20 +17,26 @@ use List::MoreUtils qw/all/;
 # However this class will not handle rendering.
 
 # Rulemaps are not stored in the database. They are derived from
-#   entries in the Ruleset and Extra_rule tables.
+#   entries in the Ruleset and Extra_rule tables. Or wherever.
 # Some extra rules could be assigned using Moose's roles.
 # Example: 'fog of war', 'atom go' each could be assigned to several variants.
 
 # Also: This does not involve the ko rule. That requires a database search 
-#   for a duplicate position.
+#   for a duplicate position. TODO:: B::History. Do this.
 
 # Note: I'm treating intersections (i.e. nodes) as scalars, which different rulemap 
 #   subclasses may handle as they will. Rect nodes [$row,$col].
 
-
 #To support more than 2 players or sides, each game inherently has a sort of basis
 # such as 'ffa', 'zen', 'team', 'perverse', or perhaps more
 
+# Classes to extract:
+# Basilisk::State,
+# Basilisk::MoveResult,
+# Basilisk::Scorable,
+# Basilisk::Delta,
+# Basilisk::History?
+# Basilisk::NodeSet, (DONE)
 
 has topology => (
    is => 'ro',
@@ -56,17 +63,17 @@ has ko_rule => (
 sub apply_rule_role{
    my ($self, $rule, $param) = @_;
    if ($rule =~ /^heisengo/){
-      basilisk::Rulemap::Heisengo::apply ($self, $param);
+      Basilisk::Rulemap::Heisengo::apply ($self, $param);
    }
    elsif ($rule =~ /^planckgo/){
-      basilisk::Rulemap::Planckgo::apply ($self, $param);
+      Basilisk::Rulemap::Planckgo::apply ($self, $param);
    }
    else {die $rule} 
 }
 
 
 #These must be implemented in a subclass
-my $blah = 'use a subclass instead of basilisk::Rulemap';
+my $blah = 'use a subclass instead of Basilisk::Rulemap';
 sub move_is_valid{ die $blah}
 sub node_to_string{ die $blah}
 sub node_from_string{ die $blah}
@@ -105,23 +112,6 @@ sub evaluate_move{
    }
    return ($newboard, '', $caps);#no err
    #node is returned to make this method easier to override for heisenGo
-}
-
-#this is perfectly clear.
-sub nodestrings_string_to_nodestrings_list{
-   my ($self, $nodes) = @_; #'4-4_3-5', to ('4_4','3_5')
-   my @nodestrings = split '_', $nodes;
-   return @nodestrings
-}
-sub nodestrings_to_list{
-   my ($self, $nodes) = @_; #'4-4_3-5', etc
-   my @nodestrings = split '_', $nodes;
-   return map {$self->node_from_string($_)} @nodestrings
-}
-sub nodestrings_from_list{
-   my ($self, $nodes) = @_; #[[3,3],[5,4]] 
-   my $nodestrings = join '_', map {$self->node_to_string($_)} @$nodes;
-   return $nodestrings  #'4-4_3-5', etc
 }
 
 #uses a floodfill algorithm
@@ -477,7 +467,8 @@ sub determine_next_phase{
 #compare initial board to a blank slate.
 #this delta fits nicely in position 0 for 
 # a delta list that covers the game.
-sub initial_delta{
+# update: this won't work.
+sub FOO_initial_delta{
    my ($self, $initial_board) = @_;;
    return {} unless $initial_board;
    
@@ -517,4 +508,22 @@ sub delta{
    }
    return {remove => \@remove, add => \@add};
 }
+
+sub nodeset{ # $rm->nodeset(@nodes)
+   my $self = shift;
+   my $ns = Basilisk::NodeSet->new(rulemap => $self);
+   $ns->add($_) for @_;
+   return $ns;
+}
+
+sub floodfill($\&$){
+   my ($self, $cond, $progenitor) = @_;
+   my @q;
+   my $set = {};
+   my %seen;
+   my $node_id = $self->node_to_id($progenitor);
+   $set->{$progenitor} = $progenitor;
+}
+
+
 1;

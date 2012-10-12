@@ -1,6 +1,6 @@
-package basilisk::Rulemap::Rect;
+package Basilisk::Rulemap::Rect;
 use Moose;
-extends 'basilisk::Rulemap';
+extends 'Basilisk::Rulemap';
 
 has h  => ( #height
    is => 'ro',
@@ -29,18 +29,26 @@ sub copy_board{
    return [ map {[@$_]} @$board ];
 }
 
-#turns [13,3] into 13-3
+sub node_to_string{node_to_id(@_)}
+sub node_from_string{node_from_id(@_)}
+
+#turns [13,3] into 13*w+3
 #see also &pretty_coordinates
-sub node_to_string{ 
+sub node_to_id{ 
    my ($self, $node) = @_;
-   return join '-', @$node;
+   #return join '-', @$node;
+   return $node->[0] * $self->w + $node->[1]
 }
-sub node_from_string{ #return undef if invalid
+sub node_from_id{ #return undef if invalid
    my ($self, $string) = @_;
-   return unless $string =~ /^(\d+)-(\d+)$/;
-   return unless $1 < $self->h;
-   return unless $2 < $self->w;
-   return [$1,$2];
+   my $row = $string / $self->w;
+   my $col = $string % $self->w;
+   return [$row,$col];
+   #return unless $string =~ /^(\d+)-(\d+)$/;
+   #return unless $1 < $self->h;
+   #return unless $2 < $self->w;
+   #return $node->[0] * $self->w + $node->[1]
+   #return [$1,$2];
 }
 sub stone_at_node{ #0 if empty, b black, w white, r red, etc
    my ($self, $board, $node) = @_;
