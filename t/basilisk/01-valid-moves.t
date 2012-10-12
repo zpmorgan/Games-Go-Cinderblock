@@ -7,18 +7,27 @@ use Basilisk::Rulemap::Rect;
 #use Basilisk::NodeSet;
 use Test::Exception;
 
-my $rect_rm = Basilisk::Rulemap::Rect->new(
-   w=>4,
-   h=>4,
-);
-isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
-
 {
+   my $rect_rm = Basilisk::Rulemap::Rect->new(
+      w=>4,
+      h=>5,
+   );
+   isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
+
+   is_deeply($rect_rm->empty_board, [
+         [qw[0 0 0 0]],
+         [qw[0 0 0 0]],
+         [qw[0 0 0 0]],
+         [qw[0 0 0 0]],
+         [qw[0 0 0 0]],
+      ], 'initial board is h*w zeros.');
+
    my $board = [
       [qw/0 w b 0/],
       [qw/w w b b/],
       [qw/w w b 0/],
       [qw/0 w b 0/],
+      [qw/w w b b/],
    ];
    my $foo_state = Basilisk::State->new(
       board => $board,
@@ -40,12 +49,14 @@ isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
       [qw/w w b b/],
       [qw/w w b b/],
       [qw/0 w b 0/],
+      [qw/w w b b/],
    ], 'resulting state has board with move applied.');
    is_deeply($foo_state->board, [
       [qw/0 w b 0/],
       [qw/w w b b/],
       [qw/w w b 0/],
       [qw/0 w b 0/],
+      [qw/w w b b/],
    ], 'original board is unmolested after another board is derived.');
    is($bar_state->turn, 'w');
 

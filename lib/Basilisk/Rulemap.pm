@@ -85,6 +85,7 @@ sub set_stone_at_node{ die $blah}
 sub stone_at_node{ die $blah}
 sub all_nodes{ die $blah}
 sub copy_board{ die $blah}
+sub empty_board{ die $blah}
 
 sub normalize_board_to_string{ # to hash for ko collisions..
    my ($self,$board) = @_;
@@ -528,7 +529,7 @@ sub FOO_initial_delta{
 }
 
 
-#compare initial earlier board to later board.
+#compare earlier board to later board.
 sub delta{
    my ($self, $board1, $board2) = @_;
    

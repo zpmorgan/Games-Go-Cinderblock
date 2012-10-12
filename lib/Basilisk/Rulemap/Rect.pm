@@ -24,6 +24,15 @@ has wrap_h => (
    default => 0,
 );
 
+# LoL of all 0's
+sub empty_board{ 
+   my $self = shift;
+   my @rows = 
+      map {
+         [ map {0} (1..$self->w) ]
+      } (1..$self->h);
+   return \@rows;
+}
 
 sub copy_board{
    my ($self, $board) = @_;
