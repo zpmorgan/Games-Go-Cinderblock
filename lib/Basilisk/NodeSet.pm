@@ -1,6 +1,11 @@
 package Basilisk::NodeSet;
 use Moose;
 
+use overload
+   '==' => \&test_equality,
+   '!=' => \&test_inequality,
+   '""' => \&stringify;
+
 has _nodes => (
    isa => 'HashRef',
    is => 'ro',
@@ -28,4 +33,24 @@ sub has_node{
    return 0;
 }
 
+sub test_equality{
+   my $self = shift;
+   my $other = shift;
+   return 0 if scalar(keys %{$self->_nodes}) != scalar(keys %{$other->_nodes});
+   for my $key (keys %{$self->_nodes}){
+      return 0 unless defined $other->_nodes->{$key};
+   }
+   return 1;
+}
+sub test_inequality{
+   my $self = shift;
+   my $other = shift;
+   return 0 if $self == $other;
+   return 1;
+}
+
+sub stringify{
+   my $self = shift;
+   return join ',', keys %{$self->_nodes};
+}
 1;
