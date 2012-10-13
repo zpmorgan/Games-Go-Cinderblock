@@ -19,9 +19,8 @@ has basis_state=> (
 );
 
 has resulting_state=> (
-   #lazy => 1,
    is => 'ro',
-   #builder => '_derive_resulting_state',
+   # required if success?
    isa => 'Basilisk::State',
 );
 has delta => (
@@ -34,8 +33,9 @@ has delta => (
 has succeeded => (
    isa => 'Bool',
    is => 'ro',
-   lazy => 1,
-   builder => '_determine_success',
+#   lazy => 1,
+#   builder => '_determine_success',
+   required => 1,
 );
 has reason => (
    isa => 'Str',
@@ -43,13 +43,16 @@ has reason => (
    required => 0,
 );
 
-sub _derive_delta{}
-sub _FOO_derive_resulting_state{
+sub _derive_delta{
    my $self = shift;
-   return $self->basis_state;
+   return $self->rulemap->delta(
+      $self->basis_state->board,
+      $self->resulting_state->board,
+   );
 }
+
 #put off evaluation until we need it.
-sub _determine_success{
+sub FOO__determine_success{
    my $self = shift;
 }
 

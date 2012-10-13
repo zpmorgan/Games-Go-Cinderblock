@@ -87,6 +87,17 @@ sub all_nodes{ die $blah}
 sub copy_board{ die $blah}
 sub empty_board{ die $blah}
 
+
+sub initial_state{
+   my $self = shift;
+   my $state = Basilisk::State->new(
+      rulemap => $self,
+      board => $self->empty_board,
+      turn => 'b',
+   );
+   return $state;
+}
+
 sub normalize_board_to_string{ # to hash for ko collisions..
    my ($self,$board) = @_;
    my @all_nodes = $self->all_nodes;
@@ -547,8 +558,9 @@ sub delta{
             push @remove, [$fore => $node];
          }
          else{
-            die 'replacement? no thanks.';
-            #$delta{$n} = ['update', {stone => $fore}, {stone => $afte}];
+            # die 'replacement? no thanks.';
+            push @remove, [$fore => $node];
+            push @add, [$afte => $node];
          }
       }
    }
