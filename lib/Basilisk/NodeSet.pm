@@ -21,6 +21,11 @@ sub nodes{
    my $self = shift;
    return values %{$self->_nodes};
 }
+sub remove{
+   my ($self,$node) = @_;
+   my $node_id = $self->rulemap->node_to_id($node);
+   delete $self->_nodes->{$node_id};
+}
 sub add {
    my ($self,$node) = @_;
    my $node_id = $self->rulemap->node_to_id($node);
@@ -52,5 +57,10 @@ sub test_inequality{
 sub stringify{
    my $self = shift;
    return join ',', keys %{$self->_nodes};
+}
+
+sub size{
+   my $self = shift;
+   return scalar keys %{$self->_nodes};
 }
 1;
