@@ -228,9 +228,15 @@ categories:
 
 =item alive
 
+The initial state.
+
 =item dead
 
-=item seki? maybe the stones are alive in seki? dunno how to mark seki.
+A storable must be told what stones are dead.
+
+=item seki? 
+
+not implemented. Maybe the stones are alive in seki? dunno how to mark seki.
 
 =back
 
@@ -238,13 +244,21 @@ categories:
 
 =over 4
 
-=item   known_territory
+=item   known_territory 
+
+considering stones that are known to be dead, this area is known to be alive.
 
 =item   derived_territory
 
+Surrounded by stones that may be deanimated.
+
 =item   dame
 
-=item   seki territory? later.
+the region is bounded by stones of more than one color.
+
+=item   seki territory?
+
+not implemented. Further research is needed.
 
 =back
 
@@ -275,7 +289,7 @@ head1 TERMINOLOGY
 
 =head1 RULES
 
-empty regions are initially either dame or derived territory.
+Empty regions are initially either dame or derived territory.
 marking a stone as dead has the effect of converting dame/derived to known
 for the region bounded by stones of the opposite color.
 reanimating dead stones returns its adjacent empty nodes to dame.
@@ -283,10 +297,12 @@ alive stones adjacent to known territory can not be deanimated.
 
 =head1 REPRESENTATION
 
-each category has a hash attribute in the scorable object.
+Each category has a hash attribute in the scorable object.
 they are divided into colors, where each color of that cat has a B::NodeSet.
 the cats are named _alive, _dead, _known_terr, _derived_terr, _dame, maybe _seki later.
 each transanimation initiates a floodfill to discover the boundry of its the region
 bordered by the opposite color.
+
+The dame category is an exception. there is no color specified.
 
 =cut
