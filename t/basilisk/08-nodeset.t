@@ -32,4 +32,12 @@ use Basilisk::Rulemap;
    my $entire_board_ns = $tor_rm->all_nodes_nodeset;
    is( $entire_board_ns->count, 20, 'all_nodes nodeset has correct count on 4x5');
 }
+{
+   my $rm = Basilisk::Rulemap::Rect->new( h=>11,w=>18 );
+   my $nw_corner = $rm->nodeset([0,0]);
+   my $a1 = $rm->nodeset([1,0],[0,1]);
+   my $a2 = $rm->nodeset([0,0], [0,2],[2,0],[1,1]);
+   cmp_ok( $nw_corner->adjacent, '==', $a1, 'ns adjacent method');
+   cmp_ok( $nw_corner->adjacent->adjacent, '==', $a2, 'ns adjacent method x2');
+}
 done_testing;
