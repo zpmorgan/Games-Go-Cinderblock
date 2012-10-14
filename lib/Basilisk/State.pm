@@ -38,4 +38,12 @@ sub attempt_move{
    return $result;
 }
 
+sub scorable{ #new? args?
+   my $self = shift;
+   my $scorable = Basilisk::Scorable->new(
+      state => $self,
+      rulemap => $self->rulemap,
+   );
+}
+
 1;

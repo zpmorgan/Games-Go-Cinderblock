@@ -59,7 +59,7 @@ sub stringify{
    return join ',', keys %{$self->_nodes};
 }
 
-sub size{
+sub count{
    my $self = shift;
    return scalar keys %{$self->_nodes};
 }
