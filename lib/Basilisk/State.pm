@@ -53,19 +53,24 @@ sub at_node{
 
 sub floodfill{
    my ($self, $cond, $progenitor) = @_;
-   my $set = $self->nodeset($progenitor);
-   my $seen = $self->nodeset($progenitor);
-   my @q = $self->adjacent_nodes($progenitor);
+   my $set = $self->rulemap->nodeset($progenitor);
+   my $seen = $self->rulemap->nodeset($progenitor);
+   my @q = $self->rulemap->adjacent_nodes($progenitor);
+   my $unseen = $self->rulemap->nodeset(@q);
    local($_);
-   while(@q){
-      my $node = shift @q;
-      next if $seen->has($node);
+   while($unseen->count){
+      my $node = $unseen->choose;
+      $unseen->remove($node);
       $seen->add($node);
-      warn $_;
+      #next if $seen->has_node($node);
+      #$seen->add($node);
       $_ = $node;
+      #warn ($_ ? @$_ : '');
+      #Carp::confess;
       next unless $cond->($node);
+      warn 'met';
       $set->add($node);
-      push @q, $self->adjacent_nodes($node);
+      push @q, $self->rulemap->adjacent_nodes($node);
    }
    return $set;
 }
@@ -79,5 +84,20 @@ To get a region of empty space, starting at $node
     $state->floodfill( $sub{ ! $_ }, $node);
 
 =cut
+
+sub num_colors_in_nodeset{
+   my $self = shift;
+   return scalar ($self->colors_in_nodeset(@_));
+}
+sub colors_in_nodeset{
+   my ($self, $nodeset) = @_;
+   my %colors;
+   for my $node ($nodeset->nodes){
+      my $stone = $self->at_node($node);
+      next unless $stone;
+      $colors{$stone}++;
+   }
+   return keys %colors;
+}
 
 1;

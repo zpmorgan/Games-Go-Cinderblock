@@ -105,7 +105,7 @@ sub _build_initial_cats{
          w => $self->rulemap->nodeset,
          b => $self->rulemap->nodeset,
       },
-      deriver_terr => {
+      derived_terr => {
          w => $self->rulemap->nodeset,
          b => $self->rulemap->nodeset,
       },
@@ -114,7 +114,7 @@ sub _build_initial_cats{
    my $board = $self->state->board;
    while($remaining_nodes->count){
       my $node = $remaining_nodes->choose;
-      my $stone = $self->state->at($node);
+      my $stone = $self->state->at_node($node);
       if($stone){
          my $cond = sub{ $_ eq $stone};
          my $contiguous = $self->state->floodfill ($cond, $node);
@@ -122,9 +122,20 @@ sub _build_initial_cats{
          $initial_cats{alive}{$stone}->add($contiguous);
       }
       else { #space.
-
+         my $cond = sub{ ! $_ };
+         my $contiguous = $self->state->floodfill ($cond, $node);
+         my $adjacent = $contiguous->adjacent;
+         my @adj_colors = $self->state->colors_in_nodeset($adjacent);;
+         if(@adj_colors != 1){
+            $initial_cats{dame}->add($contiguous);
+         }
+         else {
+            $initial_cats{derived_terr}{$adj_colors[0]}->add($contiguous);
+         }
+         $remaining_nodes->remove($contiguous);
       }
    }
+   return \%initial_cats;
 }
 sub _initial_dame{
    my $self = shift;
@@ -137,6 +148,13 @@ sub _initial_derived_terr {
 sub _initially_generous_with_life{
    my $self = shift;
    return $self->_initial_cats->{alive}
+}
+sub _empty_nodesets{
+   my $self = shift;
+   return {
+      b => $self->rulemap->nodeset,
+      w => $self->rulemap->nodeset,
+   };
 }
 
 #transanimation -- to toggle the status of life/death, reanimate^deanimate
@@ -156,8 +174,6 @@ sub transanimate_node{
 sub reanimate_node{}
 sub deanimate_node{}
 
-
-sub foo{}
 
 # these 4 lines are shtoopid.
 # a state is used, and a bunch of nodesets are derived. that is all.
@@ -190,7 +206,15 @@ sub territory{
       };
    }
    #have color.
-   return $self->rulemap->nodeset;
+   #  die %{$self->_known_terr};
+   my $known = $self->_known_terr->{$color};
+   die unless $known;
+   my $derived = $self->_derived_terr->{$color};
+   die unless $derived;
+   my $ns = $self->rulemap->nodeset;
+   $ns->add($known);
+   $ns->add($derived);
+   return $ns;
 }
 
 1;

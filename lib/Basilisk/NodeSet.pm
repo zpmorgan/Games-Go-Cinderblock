@@ -78,11 +78,29 @@ sub test_inequality{
 
 sub stringify{
    my $self = shift;
-   return join ',', keys %{$self->_nodes};
+   return '<' . join( ',', keys %{$self->_nodes}) . '>';
 }
 
 sub count{
    my $self = shift;
    return scalar keys %{$self->_nodes};
+}
+
+# return an arbitrary element. not random.
+sub choose{
+   my $self = shift;
+   my ($key,$val) = each %{$self->_nodes};
+   return $val;
+}
+
+sub adjacent{
+   my $self = shift;
+   my $res = $self->rulemap->nodeset;
+   for my $n ($self->nodes){
+      my @adj = $self->rulemap->adjacent_nodes($n);
+      $res->add(@adj);
+   }
+   $res->remove($self);
+   return $res;
 }
 1;
