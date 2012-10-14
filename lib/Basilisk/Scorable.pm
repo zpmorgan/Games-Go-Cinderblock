@@ -1,45 +1,10 @@
 package Basilisk::Scorable;
 use Moose;
+
 # Basilisk::Scorable,
 # * original Basilisk had death masks & territory masks.
 # * B::Scorable should encapsulate that, 
 #   & have methods to derive score from caps, deads, & territory
-
-categories:
-# Known dead vs. alives. there are no unknown unknowns when it comes to dead groups.
-# here are the category a node can be in:
-# stone categories:
-#   alive
-#   dead
-#   seki? maybe the stones are alive in seki? dunno how to mark seki.
-# stoneless node categories:
-#   known_territory
-#   derived_territory
-#   dame
-#   seki territory? later.
-
-# I think that this covers all categories related to score negotiation
-#  for different scoring regimes.
-#   * chinese rules -- alive stones are a point each.
-#   * japanese rules -- no territory in seki.
-
-terminology:
-# * animation -- the life/death state of a stone, chain, group, or any (in)?animate object
-# * transanimate -- to animate or deanimate something
-
-rules:
-# empty regions are initially either dame or derived territory.
-# marking a stone as dead has the effect of converting dame/derived to known
-#  for the region bounded by stones of the opposite color.
-# reanimating dead stones returns its adjacent empty nodes to dame.
-# alive stones adjacent to known territory can not be deanimated.
-
-storage:
-# each category has a hash attribute in the scorable object.
-# they are divided into colors, where each color of that cat has a B::NodeSet.
-# the cats are named _alive, _dead, _known_terr, _derived_terr, _dame, maybe _seki later.
-# each transanimation initiates a floodfill to discover the boundry of its the region
-# bordered by the opposite color.
 
 has rulemap => (
    isa => 'Basilisk::Rulemap',
@@ -219,3 +184,109 @@ sub territory{
 
 1;
 
+__END__
+
+=head1 NAME
+
+Basilisk::Scorable - An abstract state of endgame score negotiation
+
+=head1 SYNOPSIS
+
+   my $rulemap = Basilisk::Rulemap::Rect->new( h=>2, w=>5 );
+   my $board = [
+      [qw/0 w 0 b b/],
+      [qw/0 w w b 0/],
+   ];
+   my $state_to_score = Basilisk::State->new(
+      rulemap  => $rulemap,
+      turn => 'b',
+      board => $board,
+   );
+   my $scorable = $state_to_score->scorable;
+   my %score = $scorable->score;
+   say "black: $score{b}, white: $score{w}";
+   # black: 1, white: 2
+   
+   $scorable->transanimate([0,4]);
+   # equivelent: $scorable->deanimate([0,4]);
+   my %dead_stones = $scorable->dead;
+   say "black: $dead_stones{b}, white: $dead_stones{w}";
+   # black: 3, white: 0
+   #
+   $scorable->reanimate([0,4]);
+   # equivelent: $scorable->transanimate([0,4]);
+   # score black: 1, white: 2
+
+=head1 DESCRIPTION
+
+The status of each node is one of the following categories:
+categories:
+
+=head2 Stone-occupied node categories:
+
+=over 4
+
+=item alive
+
+=item dead
+
+=item seki? maybe the stones are alive in seki? dunno how to mark seki.
+
+=back
+
+=head2 stoneless node categories:
+
+=over 4
+
+=item   known_territory
+
+=item   derived_territory
+
+=item   dame
+
+=item   seki territory? later.
+
+=back
+
+I think that this covers all categories related to score negotiation
+for different scoring regimes.
+
+=over 4
+
+=item chinese rules -- alive stones are a point each.
+
+=item japanese rules -- no territory in seki.
+
+=back
+
+head1 TERMINOLOGY
+
+=over 4
+
+=item deanimate -- To set as dead, to kill
+
+=item reanimate -- To set as alive, to revive
+
+=item animation -- the life/death state of a stone, chain, group, or any (in)?animate object
+
+=item transanimate -- to animate xor deanimate something, to to toggle the life/death state
+
+=back
+
+=head1 RULES
+
+empty regions are initially either dame or derived territory.
+marking a stone as dead has the effect of converting dame/derived to known
+for the region bounded by stones of the opposite color.
+reanimating dead stones returns its adjacent empty nodes to dame.
+alive stones adjacent to known territory can not be deanimated.
+
+=head1 REPRESENTATION
+
+each category has a hash attribute in the scorable object.
+they are divided into colors, where each color of that cat has a B::NodeSet.
+the cats are named _alive, _dead, _known_terr, _derived_terr, _dame, maybe _seki later.
+each transanimation initiates a floodfill to discover the boundry of its the region
+bordered by the opposite color.
+
+=cut
