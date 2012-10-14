@@ -38,12 +38,46 @@ sub attempt_move{
    return $result;
 }
 
-sub scorable{ #new? args?
+sub scorable{ #new? args? scorable_from_json?
    my $self = shift;
    my $scorable = Basilisk::Scorable->new(
       state => $self,
       rulemap => $self->rulemap,
    );
 }
+
+sub at_node{
+   my ($self,$node) = @_;
+   return $self->rulemap->stone_at_node($self->board,$node);
+}
+
+sub floodfill{
+   my ($self, $cond, $progenitor) = @_;
+   my $set = $self->nodeset($progenitor);
+   my $seen = $self->nodeset($progenitor);
+   my @q = $self->adjacent_nodes($progenitor);
+   local($_);
+   while(@q){
+      my $node = shift @q;
+      next if $seen->has($node);
+      $seen->add($node);
+      warn $_;
+      $_ = $node;
+      next unless $cond->($node);
+      $set->add($node);
+      push @q, $self->adjacent_nodes($node);
+   }
+   return $set;
+}
+
+=head1 $state->floodfill( $coderef, $node);
+
+To get a chain of white stones starting at $node
+    $state->floodfill( $sub{ $_ eq 'w' }, $node);
+
+To get a region of empty space, starting at $node
+    $state->floodfill( $sub{ ! $_ }, $node);
+
+=cut
 
 1;

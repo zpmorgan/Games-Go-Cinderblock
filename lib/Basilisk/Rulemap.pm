@@ -237,6 +237,33 @@ sub all_chains{
    return (\%delegates, \%delegate_of_stone, \%delegate_side)
 }
 
+sub nodeset{ # $rm->nodeset(@nodes)
+   my $self = shift;
+   my $ns = Basilisk::NodeSet->new(rulemap => $self);
+   $ns->add($_) for @_;
+   return $ns;
+}
+# sub all_nodes, sub no_nodes.. TODO
+sub all_nodes_nodeset{
+   my $self = shift;
+   return $self->nodeset($self->all_nodes);
+}
+sub floodfill{ #in state now..
+   my ($self, $cond, $progenitor) = @_;
+   my $set = $self->nodeset($progenitor);
+   my $seen = $self->nodeset($progenitor);
+   my @q = $self->adjacent_nodes($progenitor);
+   while(@q){
+      my $node = shift @q;
+      next if $seen->has($node);
+      $seen->add($node);
+      next unless $cond->($node);
+      $set->add($node);
+      push @q, $self->adjacent_nodes($node);
+   }
+}
+
+
 sub all_stones {
    my ($self, $board) = @_;
    return grep {$self->stone_at_node($board, $_)} ($self->all_nodes);
@@ -295,7 +322,7 @@ sub find_captured{
 # This stuff is just for scoring. Maybe it could be used for 
 #   some interactive score estimation too.
 
-sub death_mask_from_list{ 
+sub FOO_death_mask_from_list{ 
    #Takes list of some dead stones. Other stones in same chains are also dead.
    my ($self, $board, $list) = @_;
    my %mask;
@@ -307,7 +334,7 @@ sub death_mask_from_list{
    }
    return \%mask;
 }
-sub death_mask_to_list{
+sub FOO_death_mask_to_list{
    #turns each dead string into a representative stringified node
    my ($self, $board, $mask) = @_;
    my @list;
@@ -326,7 +353,7 @@ sub death_mask_to_list{
    }
    return @list;
 }
-sub mark_alive{
+sub FOO_mark_alive{
    my ($self, $board, $mask, $node) = @_;
    my ($alivenodes, $libs, $foes) = $self->get_chain ($board, $node);
    for my $n (@$alivenodes){
@@ -335,7 +362,7 @@ sub mark_alive{
 }
 
 #this returns (terr_mask, {side=>points})
-sub find_territory_mask{
+sub FOO_find_territory_mask{
    my ($self, $board, $death_mask) = @_;
    $death_mask ||= {};
    my %seen; #accounts for all empty nodes.
@@ -365,7 +392,7 @@ sub find_territory_mask{
    return (\%terr_mask, \%terr_points);
 }
 
-sub count_deads{
+sub FOO_count_deads{
    my ($self, $board, $death_mask) = @_;
    my %deads; #{b,w,r}
    for ($self->all_sides){
@@ -379,7 +406,7 @@ sub count_deads{
    return \%deads;
 }
 
-sub compare_masks{
+sub FOO_compare_masks{
    my ($self, $mask1, $mask2) = @_;
    return 0 unless (keys %$mask1 == keys %$mask2);
    for my $n (keys %$mask1){
@@ -388,8 +415,8 @@ sub compare_masks{
    return 1;
 }
 
-sub captures_of_side {die'do'}
-sub captures_of_entity{
+sub FOO_captures_of_side {die'do'}
+sub FOO_captures_of_entity{
    my ($self, $entity, $captures) = @_;
    die 'wrong score mode' unless $self->detect_basis eq 'ffa';
    unless (defined $captures) {$captures = $self->default_captures}
@@ -403,6 +430,10 @@ sub captures_of_entity{
       }
    }
 }
+
+
+
+
 sub side_of_entity{
    my ($self, $entity) = @_;
    die 'wrong score mode' unless $self->detect_basis eq 'ffa';
@@ -565,22 +596,6 @@ sub delta{
       }
    }
    return {remove => \@remove, add => \@add};
-}
-
-sub nodeset{ # $rm->nodeset(@nodes)
-   my $self = shift;
-   my $ns = Basilisk::NodeSet->new(rulemap => $self);
-   $ns->add($_) for @_;
-   return $ns;
-}
-
-sub floodfill($\&$){
-   my ($self, $cond, $progenitor) = @_;
-   my @q;
-   my $set = {};
-   my %seen;
-   my $node_id = $self->node_to_id($progenitor);
-   $set->{$progenitor} = $progenitor;
 }
 
 

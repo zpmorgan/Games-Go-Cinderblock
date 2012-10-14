@@ -79,7 +79,8 @@ sub all_nodes{ #return list coordinates
    return @nodes;
 }
 
-sub node_liberties{
+sub node_liberties{goto \&adjacent_nodes}
+sub adjacent_nodes{
    my ($self, $node) = @_;
    my ($row, $col) = @$node;
    my @nodes;

@@ -52,13 +52,6 @@ has state => (
    required => 1,
 );
 
-# something was toggled after the last score?
-has FOO_dirty => (
-   is => 'rw',
-   isa => 'Bool',
-   default => 1,
-);
-
 has _alive => (
    isa => 'HashRef[Basilisk::NodeSet]',
    is => 'ro',
@@ -71,7 +64,6 @@ has _dead => (
    lazy => 1,
    builder => '_empty_nodesets',
 );
-
 has _known_terr => (
    isa => 'HashRef[Basilisk::NodeSet]',
    is => 'ro',
@@ -84,8 +76,8 @@ has _derived_terr => (
    lazy => 1,
    builder => '_initial_derived_terr',
 );
-has _derived_territory => (
-   isa => 'HashRef[Basilisk::NodeSet]',
+has _dame => (
+   isa => 'Basilisk::NodeSet',
    is => 'ro',
    lazy => 1,
    builder => '_initial_dame',
@@ -93,12 +85,61 @@ has _derived_territory => (
 
 #has _seki => (); #
 
-sub _initial_dame{}
-sub _initial_derived_terr {}
+#based on state, has dame, derived, & alive. that is everything initially.
+#this is an attribute so we can initialize these 3 categories at the same time, if needed.
+has _initial_cats => (
+   is => 'ro',
+   isa => 'HashRef', #dame isn't color-separated; the others are.
+   lazy => 1,
+   builder => '_build_initial_cats',
+);
+
+#crawl entire board, putting each node into one of these 3 categories.
+sub _build_initial_cats{
+   my $self = shift;
+
+   my $remaining_nodes = $self->rulemap->all_nodes_nodeset;
+   my %initial_cats = (
+      dame => $self->rulemap->nodeset,
+      alive => {
+         w => $self->rulemap->nodeset,
+         b => $self->rulemap->nodeset,
+      },
+      deriver_terr => {
+         w => $self->rulemap->nodeset,
+         b => $self->rulemap->nodeset,
+      },
+   );
+
+   my $board = $self->state->board;
+   while($remaining_nodes->count){
+      my $node = $remaining_nodes->choose;
+      my $stone = $self->state->at($node);
+      if($stone){
+         my $cond = sub{ $_ eq $stone};
+         my $contiguous = $self->state->floodfill ($cond, $node);
+         $remaining_nodes->remove($contiguous);
+         $initial_cats{alive}{$stone}->add($contiguous);
+      }
+      else { #space.
+
+      }
+   }
+}
+sub _initial_dame{
+   my $self = shift;
+   return $self->_initial_cats->{dame}
+}
+sub _initial_derived_terr {
+   my $self = shift;
+   return $self->_initial_cats->{derived_terr}
+}
 sub _initially_generous_with_life{
    my $self = shift;
-   return $self->rulemap->nodeset;
+   return $self->_initial_cats->{alive}
 }
+
+#transanimation -- to toggle the status of life/death, reanimate^deanimate
 
 sub transanimate_node{
    my ($self, $node) = @_;
@@ -106,7 +147,7 @@ sub transanimate_node{
    return unless $stone;
    my $deanimate = $self->aliveness_at_node($node);
    if($deanimate){
-      my $nodeset = $self->rulemap->floodfill(sub{0}, $node);
+      #my $nodeset = $self->rulemap->floodfill(sub{0}, $node);
    }
    else{
 

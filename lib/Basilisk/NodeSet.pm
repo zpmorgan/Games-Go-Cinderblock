@@ -22,14 +22,36 @@ sub nodes{
    return values %{$self->_nodes};
 }
 sub remove{
-   my ($self,$node) = @_;
-   my $node_id = $self->rulemap->node_to_id($node);
-   delete $self->_nodes->{$node_id};
+   my $self = shift;
+   return unless $_[0];
+   if(ref($_[0]) eq 'Basilisk::NodeSet'){
+      my $ns = shift;
+      for my $nid (keys %{$ns->_nodes}){
+         delete $self->_nodes->{$nid}
+      }
+   }
+   else{
+      for my $node (@_){
+         my $node_id = $self->rulemap->node_to_id($node);
+         delete $self->_nodes->{$node_id};
+      }
+   }
 }
-sub add {
-   my ($self,$node) = @_;
-   my $node_id = $self->rulemap->node_to_id($node);
-   $self->_nodes->{$node_id} = $node;
+sub add { #stones or a nodeset.
+   my $self = shift;
+   return unless $_[0];
+   if(ref($_[0]) eq 'Basilisk::NodeSet'){
+      my $ns = shift;
+      for my $nid (keys %{$ns->_nodes}){
+         $self->_nodes->{$nid} = $ns->_nodes->{$nid};
+      }
+   }
+   else{
+      for my $node (@_){
+         my $node_id = $self->rulemap->node_to_id($node);
+         $self->_nodes->{$node_id} = $node;
+      }
+   }
 }
 sub has_node{
    my ($self,$node) = @_;
