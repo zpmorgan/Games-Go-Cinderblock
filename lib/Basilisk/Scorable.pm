@@ -121,23 +121,68 @@ sub _empty_nodesets{
       w => $self->rulemap->nodeset,
    };
 }
+   
+sub node_animated{
+   my ($self,$node) = @_;
+}
 
 #transanimation -- to toggle the status of life/death, reanimate^deanimate
+#nop if not occupied.
 
 sub transanimate_node{
    my ($self, $node) = @_;
    my $stone = $self->state->stone_at_node($node);
    return unless $stone;
-   my $deanimate = $self->aliveness_at_node($node);
+   my $deanimate = $self->node_animated($node);
    if($deanimate){
       #my $nodeset = $self->rulemap->floodfill(sub{0}, $node);
+      $self->deanimate_node($node);
    }
    else{
-
+      $self->reanimate_node($node);
    }
 };
-sub reanimate_node{}
-sub deanimate_node{}
+sub reanimate_node{ #dead -> alive
+   my ($self,$node) = @_;
+   my $stone = $self->state->stone_at_node($node);
+   die "no stone at @$node..." unless $stone;
+
+   my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
+   my $new_ambiguous_space = $self->state->floodfill(sub{$_ ne $bounded_color}, $node);
+   my $new_alives = $self->state->grep_nodeset(sub{$_ eq $stone}, $new_ambiguous_space);
+   $new_ambiguous_space->remove($new_alives);
+
+   my @amb_spaces = $new_ambiguous_space->disjoint_split;
+   
+   $new_ambiguous_space == 'dame'? 1:0;
+}
+sub deanimate_node{ #alive -> dead
+   my ($self,$node) = @_;
+   my $stone = $self->state->stone_at_node($node);
+   die "no stone at @$node..." unless $stone;
+
+   my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
+   my $new_known_terr = $self->state->floodfill(sub{$_ ne $bounded_color}, $node);
+   my $new_deads = $self->state->grep_nodeset(sub{$_ eq $stone}, $new_known_terr);
+   $new_known_terr->remove($new_deads);
+
+   # let's say, illegal if any of our new known terr is already known terr.
+   my $illegal = 
+         $new_known_terr->intersect($self->_known_terr->{w})->count()
+       + $new_known_terr->intersect($self->_known_terr->{b})->count();
+   if($illegal) {return}
+
+   #wipe other cats of nodes representing space;
+   # non-known territory/space -> known
+   $self->_derived_terr->{w}->remove($new_known_terr);
+   $self->_derived_terr->{b}->remove($new_known_terr);
+   $self->_dame->remove($new_known_terr);
+   $self->_known_terr->{$bounded_color}->add($new_known_terr);
+
+   #same for stones: alive -> dead category
+   $self->_alive->{$stone}->remove($new_deads);
+   $self->_dead->{$stone}->add($new_deads);
+}
 
 
 # these 4 lines are shtoopid.

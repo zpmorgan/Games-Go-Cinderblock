@@ -85,6 +85,26 @@ To get a region of empty space, starting at $node
 
 =cut
 
+sub grep_nodeset{
+   my ($self,$cond,$ns) = @_;
+   my $new_ns = $self->rulemap->nodeset;
+   local($_);
+   for my $node ($ns->nodes){
+      my $at = $self->at_node($node);
+      $_ = $at;
+      if($cond->()){
+         $new_ns->add($node);
+      }
+   }
+   return $new_ns;
+}
+
+=head2 $state->grep_nodeset(sub{$_ =~ /[wb]}, $nodeset)
+
+Another awkward functional thing.
+
+=cut
+
 sub num_colors_in_nodeset{
    my $self = shift;
    return scalar ($self->colors_in_nodeset(@_));

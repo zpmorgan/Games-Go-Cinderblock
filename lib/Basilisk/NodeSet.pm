@@ -103,4 +103,24 @@ sub adjacent{
    $res->remove($self);
    return $res;
 }
+sub union{
+   my ($self,$other) = @_;
+   my $result = $self->rulemap->nodeset;
+   for my $n ($self->nodes){
+      $result->add($n);
+   }
+   for my $n ($other->nodes){
+      $result->add($n);
+   }
+   $result
+}
+sub intersect{
+   my ($self,$other) = @_;
+   my $result = $self->rulemap->nodeset;
+   for my $n ($self->nodes){
+      next unless $other->has_node($n);
+      $result->add($n);
+   }
+   $result
+}
 1;
