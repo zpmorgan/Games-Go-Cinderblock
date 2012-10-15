@@ -6,6 +6,8 @@ use Moose;
 # * B::Scorable should encapsulate that, 
 #   & have methods to derive score from caps, deads, & territory
 
+# Rulemap has komi. State has captures. This has dead & territory
+# so this module should use those to calc final score.
 has rulemap => (
    isa => 'Basilisk::Rulemap',
    is => 'ro', #shouldn't change.
@@ -129,9 +131,9 @@ sub node_animated{
 #transanimation -- to toggle the status of life/death, reanimate^deanimate
 #nop if not occupied.
 
-sub transanimate_node{
+sub transanimate{
    my ($self, $node) = @_;
-   my $stone = $self->state->stone_at_node($node);
+   my $stone = $self->state->at_node($node);
    return unless $stone;
    my $deanimate = $self->node_animated($node);
    if($deanimate){
@@ -158,7 +160,7 @@ sub reanimate_node{ #dead -> alive
 }
 sub deanimate_node{ #alive -> dead
    my ($self,$node) = @_;
-   my $stone = $self->state->stone_at_node($node);
+   my $stone = $self->state->at_node($node);
    die "no stone at @$node..." unless $stone;
 
    my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
@@ -205,7 +207,7 @@ sub dead{
       };
    }
    #have color.
-   return $self->rulemap->nodeset;
+   return $self->_dead->{$color};
 }
 sub territory{
    my ($self,$color) = @_;
@@ -221,10 +223,14 @@ sub territory{
    die unless $known;
    my $derived = $self->_derived_terr->{$color};
    die unless $derived;
-   my $ns = $self->rulemap->nodeset;
-   $ns->add($known);
-   $ns->add($derived);
-   return $ns;
+   # TODO: implications of sharing dead stones between multiple other colors.
+   my $other_color = $color eq 'b' ? 'w' : 'b';
+   my $deads_as_territory = $self->_dead->{$other_color};
+   return $known->union($derived)->union($deads_as_territory);
+}
+sub dame{
+   my $self = shift;
+   return $self->_dame;
 }
 
 1;

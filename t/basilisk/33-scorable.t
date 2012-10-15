@@ -21,11 +21,16 @@ use Basilisk::Rulemap;
    ok($scorable->state == $state_to_score,
       'state is preserved as basis for scorable..');
    is( $scorable->dead('b')->count, 0, 'empty b dead nodeset initially');
-   is( $scorable->dead('w')->count, 0, 'empty b dead nodeset initially');
+   is( $scorable->dead('w')->count, 0, 'empty w dead nodeset initially');
    is( $scorable->territory('b')->count, 1, '1 b terr nodeset initially');
    is( $scorable->territory('w')->count, 2, '2 b terr nodeset initially');
    # toggle the rightmost b stone's life/death status.
-   #$scorable->transanimate([0,4]);
+   $scorable->transanimate([0,4]);
+   is( $scorable->dead('b')->count, 3, '3 b dead after transanimation');
+   is( $scorable->dead('w')->count, 0, 'b transanimated. w unscathed.');
+   is( $scorable->territory('b')->count, 0, '0 b terr. Gone from board.');
+   is( $scorable->territory('w')->count, 7, '7 w terr nodeset now.');
+   is( $scorable->dame->count, 0, 'no dame now; all white\'s.');
 }
 
 done_testing;

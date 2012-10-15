@@ -64,13 +64,16 @@ sub floodfill{
       $seen->add($node);
       #next if $seen->has_node($node);
       #$seen->add($node);
-      $_ = $node;
+      $_ = $self->at_node($node);
       #warn ($_ ? @$_ : '');
       #Carp::confess;
       next unless $cond->($node);
-      warn 'met';
       $set->add($node);
-      push @q, $self->rulemap->adjacent_nodes($node);
+      for my $n ( $self->rulemap->adjacent_nodes($node)) {
+         next if ($seen->has_node($n));
+         $unseen->add($n);
+      }
+      #     push @q, $self->rulemap->adjacent_nodes($node);
    }
    return $set;
 }
