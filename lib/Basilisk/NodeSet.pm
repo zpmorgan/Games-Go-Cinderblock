@@ -17,6 +17,15 @@ has rulemap => (
    required => 1,
 );
 
+sub copy{
+   my $self = shift;
+   my %set = %{$self->_nodes};
+   return Basilisk::NodeSet->new(
+      _nodes => \%set,
+      rulemap => $self->rulemap,
+   );
+}
+
 sub nodes{
    my $self = shift;
    return values %{$self->_nodes};
@@ -63,6 +72,7 @@ sub has_node{
 sub test_equality{
    my $self = shift;
    my $other = shift;
+   Carp::confess unless ref($other) eq 'Basilisk::NodeSet';
    return 0 if scalar(keys %{$self->_nodes}) != scalar(keys %{$other->_nodes});
    for my $key (keys %{$self->_nodes}){
       return 0 unless defined $other->_nodes->{$key};
@@ -122,5 +132,23 @@ sub intersect{
       $result->add($n);
    }
    $result
+}
+
+sub disjoint_split{
+   my $self = shift;
+   my @disjoints;
+   my $remaining = $self->copy;
+   while($remaining->count){
+      my $choice_node = $remaining->choose;
+      my $subset = $self->rulemap->nodeset;#($choice_node);
+      my $flood_iter = $self->rulemap->nodeset ($choice_node);
+      while($flood_iter->count){
+         $subset->add($flood_iter);
+         $remaining->remove($flood_iter);
+         $flood_iter = $flood_iter->adjacent->intersect($remaining);
+      }
+      push @disjoints, $subset;
+   }
+   return @disjoints;
 }
 1;

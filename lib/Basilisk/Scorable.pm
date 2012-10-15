@@ -123,13 +123,22 @@ sub _empty_nodesets{
       w => $self->rulemap->nodeset,
    };
 }
-   
+  
+# return undef if unoccupied 
+# return 0 if dead, 1 if alive
 sub node_animated{
    my ($self,$node) = @_;
+   my $stone = $self->state->at_node($node);
+   return undef unless $stone;
+   return 0 if $self->_dead->{$stone} -> has_node($node);
+   return 1 if $self->_alive->{$stone} -> has_node($node);
+   Carp::confess;
 }
 
 #transanimation -- to toggle the status of life/death, reanimate^deanimate
 #nop if not occupied.
+#
+#return 1 on success, when something is actually toggled, for all *animate
 
 sub transanimate{
    my ($self, $node) = @_;
@@ -138,15 +147,15 @@ sub transanimate{
    my $deanimate = $self->node_animated($node);
    if($deanimate){
       #my $nodeset = $self->rulemap->floodfill(sub{0}, $node);
-      $self->deanimate_node($node);
+      return $self->deanimate($node);
    }
    else{
-      $self->reanimate_node($node);
+      return $self->reanimate($node);
    }
 };
-sub reanimate_node{ #dead -> alive
+sub reanimate{ #dead -> alive
    my ($self,$node) = @_;
-   my $stone = $self->state->stone_at_node($node);
+   my $stone = $self->state->at_node($node);
    die "no stone at @$node..." unless $stone;
 
    my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
@@ -154,11 +163,25 @@ sub reanimate_node{ #dead -> alive
    my $new_alives = $self->state->grep_nodeset(sub{$_ eq $stone}, $new_ambiguous_space);
    $new_ambiguous_space->remove($new_alives);
 
+   #first, put stones from dead category into alive 
+   $self->_dead->{$stone} -> remove ($new_alives);
+   $self->_alive->{$stone} -> add ($new_alives);
+
+   #put each seperate contiguous region of empty space in either 'dame' or 'derived_terr'
    my @amb_spaces = $new_ambiguous_space->disjoint_split;
+   for my $space(@amb_spaces){
+      $self->_known_terr->{$bounded_color}->remove($space);
+      my @colors = $self->state->colors_in_nodeset($space->adjacent);
+      if(@colors == 2){
+         $self->_dame->add($space);
+      } elsif (@colors == 1){
+         $self->_derived_terr->{$colors[0]}->add($space);
+      }
+   }
    
-   $new_ambiguous_space == 'dame'? 1:0;
+   return 1;
 }
-sub deanimate_node{ #alive -> dead
+sub deanimate{ #alive -> dead
    my ($self,$node) = @_;
    my $stone = $self->state->at_node($node);
    die "no stone at @$node..." unless $stone;
@@ -172,7 +195,7 @@ sub deanimate_node{ #alive -> dead
    my $illegal = 
          $new_known_terr->intersect($self->_known_terr->{w})->count()
        + $new_known_terr->intersect($self->_known_terr->{b})->count();
-   if($illegal) {return}
+   if($illegal) {return 0}
 
    #wipe other cats of nodes representing space;
    # non-known territory/space -> known
@@ -184,6 +207,8 @@ sub deanimate_node{ #alive -> dead
    #same for stones: alive -> dead category
    $self->_alive->{$stone}->remove($new_deads);
    $self->_dead->{$stone}->add($new_deads);
+
+   return 1
 }
 
 
