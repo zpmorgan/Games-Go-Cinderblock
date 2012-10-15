@@ -51,11 +51,6 @@ sub _derive_delta{
    );
 }
 
-#put off evaluation until we need it.
-sub FOO__determine_success{
-   my $self = shift;
-}
-
 # meh
 sub failed{
    my $self = shift;
