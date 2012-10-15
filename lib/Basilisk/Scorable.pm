@@ -283,7 +283,7 @@ The initial state.
 
 =item dead
 
-A storable must be told what stones are dead.
+A scorable must be told what stones are dead.
 
 =item seki? 
 
@@ -337,6 +337,42 @@ head1 TERMINOLOGY
 =item transanimate -- to animate xor deanimate something, to to toggle the life/death state
 
 =back
+
+=head1 METHODS
+
+=head2 dame
+
+Returns a L<Basilisk::NodeSet> of contiguous empty regions bounded by multiple colors.
+
+=head2 territory($color)
+
+Returns a nodeset of known & perceived territory, including nodes
+occupied by L<dead|/dead> stones of the opposite color
+
+=head2 dead ($color)
+
+Returns a nodeset of stone of $color, which have been deanimated
+
+=head2 alive ($color)
+
+Returns a nodeset of nodes with stones of $color, which have not been deanimated.
+Alive is the default state.
+
+=head2 deanimate($node)
+
+$node must be occupied with a stone.
+
+This marks a stone as dead, and the region bounded by stones of the 
+opposite color is now known territory of the opposite color. Contained 
+nodes of the same color as $node are also marked as dead.
+
+=head2 reanimate($node)
+
+Opposite of L<deanimate($node)>
+
+=head2 transanimate($node)
+
+Either reanimates or deanimates at $node. Does nothing if $node is empty.
 
 =head1 RULES
 
