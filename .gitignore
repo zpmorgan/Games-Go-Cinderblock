@@ -2,3 +2,5 @@
 *.tmp
 *.html
 
+.build
+Games-Go-Ci*
