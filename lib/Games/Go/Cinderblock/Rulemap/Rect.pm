@@ -1,5 +1,5 @@
 package Games::Go::Cinderblock::Rulemap::Rect;
-use 5.16.0;
+use 5.14.0;
 use Moose;
 extends 'Games::Go::Cinderblock::Rulemap';
 

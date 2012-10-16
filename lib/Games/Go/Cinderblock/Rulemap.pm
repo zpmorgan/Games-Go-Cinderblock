@@ -1,5 +1,5 @@
 package Games::Go::Cinderblock::Rulemap;
-use 5.16.0;
+use 5.14.0;
 use Moose;
 
 use Games::Go::Cinderblock::NodeSet;
