@@ -57,3 +57,41 @@ sub failed{
    return ($self->succeeded ? 0 : 1);
 }
 1;
+
+__END__
+
+=head1 NAME
+
+Games::Go::Cinderblock::MoveResult
+
+=head1 DESCRIPTION
+
+This results from evaluate_move.
+
+It has a L</delta>, which describes changes to the board
+
+=head1 ATTRIBUTES
+
+=head2 rulemap 
+
+=head2 succeeded
+
+0 if move failed, 1 if move succeeded.
+
+=head2 reason
+
+If failed, this is why. e.g. 'suicide', 'collosion'
+
+=head2 basis_state
+
+=head2 resulting_state
+
+=head2 delta
+
+L</resulting_state> minus L</basis_state>, essentially.
+
+A delta is a hashref with 'remove' & 'add' keys;
+its values are lists of [color,node] pairs...
+
+=cut
+

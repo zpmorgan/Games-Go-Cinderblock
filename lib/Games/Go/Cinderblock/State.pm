@@ -78,15 +78,6 @@ sub floodfill{
    return $set;
 }
 
-=head1 $state->floodfill( $coderef, $node);
-
-To get a chain of white stones starting at $node
-    $state->floodfill( $sub{ $_ eq 'w' }, $node);
-
-To get a region of empty space, starting at $node
-    $state->floodfill( $sub{ ! $_ }, $node);
-
-=cut
 
 sub grep_nodeset{
    my ($self,$cond,$ns) = @_;
@@ -102,11 +93,6 @@ sub grep_nodeset{
    return $new_ns;
 }
 
-=head2 $state->grep_nodeset(sub{$_ =~ /[wb]}, $nodeset)
-
-Another awkward functional thing.
-
-=cut
 
 sub num_colors_in_nodeset{
    my $self = shift;
@@ -124,3 +110,81 @@ sub colors_in_nodeset{
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Games::Go::Cinderblock::State - A game state representation
+
+=head1 SYNOPSIS
+
+ my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new(
+   w => 5,
+   h => 3,
+ );
+ my $board = [
+   [qw/0 w 0 b 0],
+   [qw/w w 0 b b],
+   [qw/0 w 0 b 0]
+ ];
+ my $state = Games::Go::Cinderblock::State->new(
+   rulemap => $rulemap,
+   board => $board,
+   turn => 'b',
+ );
+ # b expertly fills in an eye
+ my $move_result = $state->attempt_move(
+   color => 'b',
+   node => [2,4],
+ );
+ $state = $move_result->resulting_state;
+ say "Current turn: ' . $state->turn;
+ # Current turn: w
+
+=head1 DESCRIPTION
+
+Unless you want bad things to happen, do not modify the state directly
+while using it as the basis of a scorable. States are generally immutable,
+but you do have the power to change them directly. Don't, though.
+
+Use attempt_move, instead. In the future, move attempts will have 
+special categories for passes & other tricky shenanigans.
+
+=head1 METHODS
+
+=head2 attempt_move
+
+Usage: C<< my $move_result = $state->attempt_move(node=>$node,color=>$color >>
+
+Return a L<MoveResult|Games::Go::Cinderblock::MoveResult>, which contains
+a resulting state if the move attempt is successful.
+
+=head2 scorable
+
+Returns a new L<Games::Go::Cinderblock::Scorable>
+with this state as its basis.
+
+=head2 floodfill
+
+ # a chain of black stones, starting at [10,10].
+ my $chain = $state->floodfill( sub{$_ eq 'b'}, [10,10]);
+
+Usage: C<< my $nodeset = $state->floodfill($condition, $progenitor) >>
+
+This returns a nodeset of connected nodes where the condition evaluates
+to true, beginning at a progenitor node.
+
+To get a chain of white stones starting at $node
+    $state->floodfill( $sub{ $_ eq 'w' }, $node);
+
+To get a region of empty space, starting at $node
+    $state->floodfill( $sub{ ! $_ }, $node);
+
+=head2 grep_nodeset
+
+ my $not_larger_nodeset = $state->grep_nodeset(sub{$_ =~ /[wb]/}, $nodeset)
+
+Another awkward functional thing.
+
+=cut

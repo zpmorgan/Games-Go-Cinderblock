@@ -23,3 +23,32 @@ has color => (
 );
 
 1;
+__END__
+
+=head1 NAME
+
+Games::Go::Cinderblock::MoveAttempt
+
+=head1 DESCRIPTION
+
+Corollary to a
+L<Games::Go::Cinderblock::MoveResult>.
+
+L</node> & L</color> describe the move attempt.
+
+L</basis_state> & L</rulemap> may determine its success.
+
+The basis_state 
+
+=head1 ATTRIBUTES
+
+=head2 node
+
+=head2 color
+
+=head2 basis_state
+
+=head2 rulemap
+
+=cut
+

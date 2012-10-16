@@ -34,11 +34,12 @@ use List::MoreUtils qw/all/;
 # such as 'ffa', 'zen', 'team', 'perverse', or perhaps more
 
 # Classes to extract:
-# Games::Go::Cinderblock::State,
-# Games::Go::Cinderblock::MoveResult,
-# Games::Go::Cinderblock::Scorable,
+# Games::Go::Cinderblock::State, (DONE)
+# Games::Go::Cinderblock::MoveResult, (DONE, + MoveAttempt)
+# Games::Go::Cinderblock::Scorable, (DONE)
 # Games::Go::Cinderblock::Delta,
 # Games::Go::Cinderblock::History?
+# Games::Go::Cinderblock::TurmDeturninator?
 # Games::Go::Cinderblock::NodeSet, (DONE)
 
 has topology => (
@@ -212,7 +213,7 @@ sub get_chain { #for all board types
 #returns chains, keyed by their delegates. a chain is a list of nodestrings
 #also returns hash of {nodestring=>delegate} 
 #also returns hash of {delegate=>side} 
-sub all_chains{
+sub FOO_all_chains{
    my ($self, $board) = @_;
    my %delegates;
    my %delegate_of_stone;
@@ -248,7 +249,7 @@ sub all_nodes_nodeset{
    my $self = shift;
    return $self->nodeset($self->all_nodes);
 }
-sub floodfill{ #in state now..
+sub FOO_floodfill{ #in state now..
    my ($self, $cond, $progenitor) = @_;
    my $set = $self->nodeset($progenitor);
    my $seen = $self->nodeset($progenitor);
@@ -465,5 +466,50 @@ sub delta{
    return {remove => \@remove, add => \@add};
 }
 
-
 1;
+
+__END__
+
+=head1 NAME
+
+Games::Go::Cinderblock::Rulemap - The beating heart of cinderblock.
+
+=head1 SYNOPSIS
+
+ my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new(
+   w => 11,
+   h => 8,
+   wrap_h => 1,
+   wrap_v => 1,
+ );
+ my $state = $rulemap->initial_state;
+ my $move_result = $state->attempt_move(
+   color => 'b',
+   node => [3,3],
+ );
+ say $move_result->succeeded ? 'success!' : ('failed? ' . $move_result->reason);
+ $state = $move_result->resulting_state;
+ # do something with $move_result->delta.
+
+=head1 DESCRIPTION
+
+This module is basically basilisk::Rulemap, now mostly split 
+into a bunch of helper modules. The intention is still to use 
+Moose's metaclass capabilities & method modifiers to override
+aspects of the default behavior.
+
+This class still uses subclasses to define topology, and still
+only one topology is in a usable state: 
+L<Games::Go::Cinderblock::Rulemap::Rect>.
+
+=head1 METHODS
+
+=head2 initial_state
+
+=head2 nodeset
+
+=head2 empty_board
+
+=head2 all_nodes
+
+=cut
