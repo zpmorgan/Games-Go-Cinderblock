@@ -1,13 +1,13 @@
 use strict;
 use Test::More;
 
-use Basilisk::Rulemap;
-#use Basilisk::Rulemap::Rect;
+use Games::Go::Cinderblock::Rulemap;
+#use Games::Go::Cinderblock::Rulemap::Rect;
 # use Test::Exception;
 #
 # First do delta from a single simple move
 {
-   my $tor_rm = Basilisk::Rulemap::Rect->new(
+   my $tor_rm = Games::Go::Cinderblock::Rulemap::Rect->new(
       w=>4,      h=>5,
       wrap_v => 1, wrap_h => 1,
    );
@@ -33,7 +33,7 @@ use Basilisk::Rulemap;
    is( $entire_board_ns->count, 20, 'all_nodes nodeset has correct count on 4x5');
 }
 {
-   my $rm = Basilisk::Rulemap::Rect->new( h=>11,w=>18 );
+   my $rm = Games::Go::Cinderblock::Rulemap::Rect->new( h=>11,w=>18 );
    my $nw_corner = $rm->nodeset([0,0]);
    my $a1 = $rm->nodeset([1,0],[0,1]);
    my $a2 = $rm->nodeset([0,0], [0,2],[2,0],[1,1]);

@@ -1,33 +1,33 @@
-package Basilisk::MoveResult;
+package Games::Go::Cinderblock::MoveResult;
 use Moose;
 
 has move_attempt => (
-   isa => 'Basilisk::MoveAttempt', # Basilisk::MoveAttempt?
+   isa => 'Games::Go::Cinderblock::MoveAttempt', # Games::Go::Cinderblock::MoveAttempt?
    is => 'ro',
    required => 1,
 );
 
 has rulemap => (
-   isa => 'Basilisk::Rulemap',
+   isa => 'Games::Go::Cinderblock::Rulemap',
    is => 'ro', #shouldn't change.
    required => 1,
 );
 has basis_state=> (
    is => 'ro',
    required => 1,
-   isa => 'Basilisk::State',
+   isa => 'Games::Go::Cinderblock::State',
 );
 
 has resulting_state=> (
    is => 'ro',
    # required if success?
-   isa => 'Basilisk::State',
+   isa => 'Games::Go::Cinderblock::State',
 );
 has delta => (
    lazy => 1,
    is => 'ro',
    builder => '_derive_delta',
-   isa => 'HashRef', # Basilisk::Delta
+   isa => 'HashRef', # Games::Go::Cinderblock::Delta
 );
 
 has succeeded => (

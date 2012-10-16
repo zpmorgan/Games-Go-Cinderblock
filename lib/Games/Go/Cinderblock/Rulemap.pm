@@ -1,14 +1,14 @@
-package Basilisk::Rulemap;
+package Games::Go::Cinderblock::Rulemap;
 use 5.16.0;
 use Moose;
 
-use Basilisk::NodeSet;
-use Basilisk::State;
-use Basilisk::Scorable;
-use Basilisk::MoveAttempt;
-use Basilisk::MoveResult;
+use Games::Go::Cinderblock::NodeSet;
+use Games::Go::Cinderblock::State;
+use Games::Go::Cinderblock::Scorable;
+use Games::Go::Cinderblock::MoveAttempt;
+use Games::Go::Cinderblock::MoveResult;
 
-use Basilisk::Rulemap::Rect;
+use Games::Go::Cinderblock::Rulemap::Rect;
 use List::MoreUtils qw/all/;
 
 # This class evaluates moves and determines new board positions.
@@ -34,12 +34,12 @@ use List::MoreUtils qw/all/;
 # such as 'ffa', 'zen', 'team', 'perverse', or perhaps more
 
 # Classes to extract:
-# Basilisk::State,
-# Basilisk::MoveResult,
-# Basilisk::Scorable,
-# Basilisk::Delta,
-# Basilisk::History?
-# Basilisk::NodeSet, (DONE)
+# Games::Go::Cinderblock::State,
+# Games::Go::Cinderblock::MoveResult,
+# Games::Go::Cinderblock::Scorable,
+# Games::Go::Cinderblock::Delta,
+# Games::Go::Cinderblock::History?
+# Games::Go::Cinderblock::NodeSet, (DONE)
 
 has topology => (
    is => 'ro',
@@ -66,17 +66,17 @@ has ko_rule => (
 sub FOO_apply_rule_role{
    my ($self, $rule, $param) = @_;
    if ($rule =~ /^heisengo/){
-      Basilisk::Rulemap::Heisengo::apply ($self, $param);
+      Games::Go::Cinderblock::Rulemap::Heisengo::apply ($self, $param);
    }
    elsif ($rule =~ /^planckgo/){
-      Basilisk::Rulemap::Planckgo::apply ($self, $param);
+      Games::Go::Cinderblock::Rulemap::Planckgo::apply ($self, $param);
    }
    else {die $rule} 
 }
 
 
 #These must be implemented in a subclass
-my $blah = 'use a topo subclass such as ::Rect instead of Basilisk::Rulemap';
+my $blah = 'use a topo subclass such as ::Rect instead of Games::Go::Cinderblock::Rulemap';
 sub move_is_valid{ die $blah}
 sub node_to_string{ die $blah}
 sub node_from_string{ die $blah}
@@ -90,7 +90,7 @@ sub empty_board{ die $blah}
 
 sub initial_state{
    my $self = shift;
-   my $state = Basilisk::State->new(
+   my $state = Games::Go::Cinderblock::State->new(
       rulemap => $self,
       board => $self->empty_board,
       turn => 'b',
@@ -123,13 +123,13 @@ sub evaluate_move_attempt{
       succeeded => 0, 
    );
    if ($self->stone_at_node ($board, $node)){
-      return Basilisk::MoveResult->new(
+      return Games::Go::Cinderblock::MoveResult->new(
          %failure_template,
          reason => "stone exists at ". $self->node_to_string($node)
       ); 
    }
    if ($color ne $basis->turn){
-      return Basilisk::MoveResult->new(
+      return Games::Go::Cinderblock::MoveResult->new(
          %failure_template,
          reason => "color $color (not) played during turn " .$basis->turn,
       ); 
@@ -143,7 +143,7 @@ sub evaluate_move_attempt{
    my ($chain, $libs, $foes) = $self->get_chain($newboard, $node);
    my $caps = $self->find_captured ($newboard, $foes);
    if (@$libs == 0 and @$caps == 0){
-      return Basilisk::MoveResult->new(
+      return Games::Go::Cinderblock::MoveResult->new(
          rulemap => $self,
          basis_state => $basis,
          move_attempt => $move_attempt,
@@ -154,13 +154,13 @@ sub evaluate_move_attempt{
    for my $cap(@$caps){ # just erase captured stones
       $self->set_stone_at_node ($newboard, $cap, 0);
    }
-   my $res_stt = Basilisk::State->new(
+   my $res_stt = Games::Go::Cinderblock::State->new(
       rulemap => $self,
       board => $newboard,
       turn => (($color eq 'b') ? 'w' : 'b'),
    );
    #return ($newboard, '', $caps);#no err
-   return Basilisk::MoveResult->new(
+   return Games::Go::Cinderblock::MoveResult->new(
       rulemap => $self,
       basis_state => $basis,
       move_attempt => $move_attempt,
@@ -239,7 +239,7 @@ sub all_chains{
 
 sub nodeset{ # $rm->nodeset(@nodes)
    my $self = shift;
-   my $ns = Basilisk::NodeSet->new(rulemap => $self);
+   my $ns = Games::Go::Cinderblock::NodeSet->new(rulemap => $self);
    $ns->add($_) for @_;
    return $ns;
 }

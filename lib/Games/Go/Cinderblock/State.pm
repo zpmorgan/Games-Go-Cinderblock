@@ -1,6 +1,6 @@
-package Basilisk::State;
+package Games::Go::Cinderblock::State;
 use Moose;
-use Basilisk::MoveResult;
+use Games::Go::Cinderblock::MoveResult;
 
 
 # basilisk::state,
@@ -10,7 +10,7 @@ use Basilisk::MoveResult;
 # doesn't serialize ruleset...; dunno how to handle that. if at all.
 has rulemap => (
    is => 'ro',
-   isa => 'Basilisk::Rulemap',
+   isa => 'Games::Go::Cinderblock::Rulemap',
    required => 1,
 );
 
@@ -27,7 +27,7 @@ sub attempt_move{
    my $self = shift;
    my %args = @_;
    my $success = 1;
-   my $attempt = Basilisk::MoveAttempt->new(
+   my $attempt = Games::Go::Cinderblock::MoveAttempt->new(
       basis_state => $self,
       rulemap => $self->rulemap,
       node => $args{node},
@@ -40,7 +40,7 @@ sub attempt_move{
 
 sub scorable{ #new? args? scorable_from_json?
    my $self = shift;
-   my $scorable = Basilisk::Scorable->new(
+   my $scorable = Games::Go::Cinderblock::Scorable->new(
       state => $self,
       rulemap => $self->rulemap,
    );

@@ -1,23 +1,23 @@
 use Test::More;
 use warnings; use strict;
 
-use Basilisk::Rulemap;
+use Games::Go::Cinderblock::Rulemap;
 {
    # plane, 5x3.
-   my $rulemap = Basilisk::Rulemap::Rect->new(
+   my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new(
       h=>2, w=>5,
    );
    my $board = [
       [qw/0 w 0 b b/],
       [qw/0 w w b 0/],
    ];
-   my $state_to_score = Basilisk::State->new(
+   my $state_to_score = Games::Go::Cinderblock::State->new(
       rulemap  => $rulemap,
       turn => 'b',
       board => $board,
    );
    my $scorable = $state_to_score->scorable;
-   isa_ok($scorable, 'Basilisk::Scorable', 'we have a scorable!');
+   isa_ok($scorable, 'Games::Go::Cinderblock::Scorable', 'we have a scorable!');
    ok($scorable->state == $state_to_score,
       'state is preserved as basis for scorable..');
    is( $scorable->dead('b')->count, 0, 'empty b dead nodeset initially');

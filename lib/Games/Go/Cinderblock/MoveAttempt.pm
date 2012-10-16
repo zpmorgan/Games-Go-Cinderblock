@@ -1,15 +1,15 @@
-package Basilisk::MoveAttempt;
+package Games::Go::Cinderblock::MoveAttempt;
 use Moose;
 
 has rulemap => (
-   isa => 'Basilisk::Rulemap',
+   isa => 'Games::Go::Cinderblock::Rulemap',
    is => 'ro', #shouldn't change.
    required => 1,
 );
 has basis_state=> (
    is => 'ro',
    required => 1,
-   isa => 'Basilisk::State',
+   isa => 'Games::Go::Cinderblock::State',
 );
 
 has node => (

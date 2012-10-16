@@ -1,6 +1,6 @@
-package Basilisk::Rulemap::Graph;
+package Games::Go::Cinderblock::Rulemap::Graph;
 use Moose;
-extends 'Basilisk::Rulemap';
+extends 'Games::Go::Cinderblock::Rulemap';
 
 #TODO: perhaps subclasses for polyhedra, streetmaps, lattice, & custom
 # nodes are represented as an integer,

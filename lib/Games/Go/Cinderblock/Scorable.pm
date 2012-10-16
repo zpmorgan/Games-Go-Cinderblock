@@ -1,7 +1,7 @@
-package Basilisk::Scorable;
+package Games::Go::Cinderblock::Scorable;
 use Moose;
 
-# Basilisk::Scorable,
+# Games::Go::Cinderblock::Scorable,
 # * original Basilisk had death masks & territory masks.
 # * B::Scorable should encapsulate that, 
 #   & have methods to derive score from caps, deads, & territory
@@ -9,42 +9,42 @@ use Moose;
 # Rulemap has komi. State has captures. This has dead & territory
 # so this module should use those to calc final score.
 has rulemap => (
-   isa => 'Basilisk::Rulemap',
+   isa => 'Games::Go::Cinderblock::Rulemap',
    is => 'ro', #shouldn't change.
    required => 1,
 );
 has state => (
-   isa => 'Basilisk::State',
+   isa => 'Games::Go::Cinderblock::State',
    is => 'ro', #shouldn't change.
    required => 1,
 );
 
 has _alive => (
-   isa => 'HashRef[Basilisk::NodeSet]',
+   isa => 'HashRef[Games::Go::Cinderblock::NodeSet]',
    is => 'ro',
    lazy => 1,
    builder => '_initially_generous_with_life',
 );
 has _dead => (
-   isa => 'HashRef[Basilisk::NodeSet]',
+   isa => 'HashRef[Games::Go::Cinderblock::NodeSet]',
    is => 'ro',
    lazy => 1,
    builder => '_empty_nodesets',
 );
 has _known_terr => (
-   isa => 'HashRef[Basilisk::NodeSet]',
+   isa => 'HashRef[Games::Go::Cinderblock::NodeSet]',
    is => 'ro',
    lazy => 1,
    builder => '_empty_nodesets',
 );
 has _derived_terr => (
-   isa => 'HashRef[Basilisk::NodeSet]',
+   isa => 'HashRef[Games::Go::Cinderblock::NodeSet]',
    is => 'ro',
    lazy => 1,
    builder => '_initial_derived_terr',
 );
 has _dame => (
-   isa => 'Basilisk::NodeSet',
+   isa => 'Games::Go::Cinderblock::NodeSet',
    is => 'ro',
    lazy => 1,
    builder => '_initial_dame',
@@ -264,16 +264,16 @@ __END__
 
 =head1 NAME
 
-Basilisk::Scorable - An abstract state of endgame score negotiation
+Games::Go::Cinderblock::Scorable - An abstract state of endgame score negotiation
 
 =head1 SYNOPSIS
 
-   my $rulemap = Basilisk::Rulemap::Rect->new( h=>2, w=>5 );
+   my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new( h=>2, w=>5 );
    my $board = [
       [qw/0 w 0 b b/],
       [qw/0 w w b 0/],
    ];
-   my $state_to_score = Basilisk::State->new(
+   my $state_to_score = Games::Go::Cinderblock::State->new(
       rulemap  => $rulemap,
       turn => 'b',
       board => $board,
@@ -367,7 +367,7 @@ head1 TERMINOLOGY
 
 =head2 dame
 
-Returns a L<Basilisk::NodeSet> of contiguous empty regions bounded by multiple colors.
+Returns a L<Games::Go::Cinderblock::NodeSet> of contiguous empty regions bounded by multiple colors.
 
 =head2 territory($color)
 

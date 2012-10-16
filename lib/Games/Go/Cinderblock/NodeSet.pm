@@ -1,4 +1,4 @@
-package Basilisk::NodeSet;
+package Games::Go::Cinderblock::NodeSet;
 use Moose;
 
 use overload
@@ -12,7 +12,7 @@ has _nodes => (
    default => sub{{}},
 );
 has rulemap => (
-   isa => 'Basilisk::Rulemap',
+   isa => 'Games::Go::Cinderblock::Rulemap',
    is => 'ro', #shouldn't change.
    required => 1,
 );
@@ -20,7 +20,7 @@ has rulemap => (
 sub copy{
    my $self = shift;
    my %set = %{$self->_nodes};
-   return Basilisk::NodeSet->new(
+   return Games::Go::Cinderblock::NodeSet->new(
       _nodes => \%set,
       rulemap => $self->rulemap,
    );
@@ -33,7 +33,7 @@ sub nodes{
 sub remove{
    my $self = shift;
    return unless $_[0];
-   if(ref($_[0]) eq 'Basilisk::NodeSet'){
+   if(ref($_[0]) eq 'Games::Go::Cinderblock::NodeSet'){
       my $ns = shift;
       for my $nid (keys %{$ns->_nodes}){
          delete $self->_nodes->{$nid}
@@ -49,7 +49,7 @@ sub remove{
 sub add { #stones or a nodeset.
    my $self = shift;
    return unless $_[0];
-   if(ref($_[0]) eq 'Basilisk::NodeSet'){
+   if(ref($_[0]) eq 'Games::Go::Cinderblock::NodeSet'){
       my $ns = shift;
       for my $nid (keys %{$ns->_nodes}){
          $self->_nodes->{$nid} = $ns->_nodes->{$nid};
@@ -72,7 +72,7 @@ sub has_node{
 sub test_equality{
    my $self = shift;
    my $other = shift;
-   Carp::confess unless ref($other) eq 'Basilisk::NodeSet';
+   Carp::confess unless ref($other) eq 'Games::Go::Cinderblock::NodeSet';
    return 0 if scalar(keys %{$self->_nodes}) != scalar(keys %{$other->_nodes});
    for my $key (keys %{$self->_nodes}){
       return 0 unless defined $other->_nodes->{$key};

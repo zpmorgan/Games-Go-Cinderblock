@@ -1,18 +1,18 @@
 use strict;
 use Test::More;
 
-use Basilisk::Rulemap;
-use Basilisk::Rulemap::Rect;
-#use Basilisk::State;
-#use Basilisk::NodeSet;
+use Games::Go::Cinderblock::Rulemap;
+use Games::Go::Cinderblock::Rulemap::Rect;
+#use Games::Go::Cinderblock::State;
+#use Games::Go::Cinderblock::NodeSet;
 use Test::Exception;
 
 {
-   my $rect_rm = Basilisk::Rulemap::Rect->new(
+   my $rect_rm = Games::Go::Cinderblock::Rulemap::Rect->new(
       w=>4,
       h=>5,
    );
-   isa_ok($rect_rm, 'Basilisk::Rulemap', 'rect_rm is.');
+   isa_ok($rect_rm, 'Games::Go::Cinderblock::Rulemap', 'rect_rm is.');
 
    is_deeply($rect_rm->empty_board, [
          [qw[0 0 0 0]],
@@ -29,7 +29,7 @@ use Test::Exception;
       [qw/0 w b 0/],
       [qw/w w b b/],
    ];
-   my $foo_state = Basilisk::State->new(
+   my $foo_state = Games::Go::Cinderblock::State->new(
       board => $board,
       turn => 'b',
       rulemap => $rect_rm,
@@ -39,11 +39,11 @@ use Test::Exception;
       color => 'b',
       node => [2,3],
    );
-   isa_ok($move_result, 'Basilisk::MoveResult');
+   isa_ok($move_result, 'Games::Go::Cinderblock::MoveResult');
    is($move_result->succeeded, 1, 'succeeded==1 on success');
    is($move_result->failed, 0, 'failed==0 on success');
    my $bar_state = $move_result->resulting_state;
-   isa_ok($bar_state, 'Basilisk::State');
+   isa_ok($bar_state, 'Games::Go::Cinderblock::State');
    is_deeply($bar_state->board, [
       [qw/0 w b 0/],
       [qw/w w b b/],
@@ -69,8 +69,8 @@ use Test::Exception;
 
 # try some failures.
 {
-   my $state = Basilisk::State->new(
-      rulemap => Basilisk::Rulemap::Rect->new(h=>2,w=>6),
+   my $state = Games::Go::Cinderblock::State->new(
+      rulemap => Games::Go::Cinderblock::Rulemap::Rect->new(h=>2,w=>6),
       turn => 'b',
       board => [
          [qw/w w w 0 b b/],
@@ -103,8 +103,8 @@ use Test::Exception;
 
 # try some captures. toroidal.
 {
-   my $state = Basilisk::State->new(
-      rulemap=> Basilisk::Rulemap::Rect->new(h=>5,w=>4, wrap_h=>1, wrap_v=>1),
+   my $state = Games::Go::Cinderblock::State->new(
+      rulemap=> Games::Go::Cinderblock::Rulemap::Rect->new(h=>5,w=>4, wrap_h=>1, wrap_v=>1),
       turn => 'w',
       board => [
          [qw/w b 0 w/],

@@ -1,7 +1,7 @@
-package Basilisk::Rulemap::Rect;
+package Games::Go::Cinderblock::Rulemap::Rect;
 use 5.16.0;
 use Moose;
-extends 'Basilisk::Rulemap';
+extends 'Games::Go::Cinderblock::Rulemap';
 
 has h  => ( #height
    is => 'ro',
