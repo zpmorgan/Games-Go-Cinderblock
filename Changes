@@ -1,0 +1,8 @@
+0.06   October 17, 2012
+    Dependencies fixed, misc minor changes
+
+0.05   October 16, 2012
+    Substantial improvements to basilisk::Rulemap
+      - NodeSets, States, MoveAttempts, Results, & Scorables
+      - Renamed after the cinderblock go server, in Games::Go:: namespace
+
