@@ -3,50 +3,43 @@ use Test::More;
 
 use Games::Go::Cinderblock::Rulemap;
 use Games::Go::Cinderblock::Rulemap::Rect;
-# use Test::Exception;
-#
-# First do delta from a single simple move
+
 {
-   my $tor_rm = Games::Go::Cinderblock::Rulemap::Rect->new(
-      w=>4,      h=>6,
-      wrap_v => 1,
+   my $plane_rm = Games::Go::Cinderblock::Rulemap::Rect->new(
+      w=>2,      h=>2,
    );
-   my $foo_state = $tor_rm->initial_state;
-   # quich check of initial state.
-   is($foo_state->turn, 'b', 'initial turn');
-   is_deeply($foo_state->board, [map{[map{0}(1..4)]}(1..6)], 'initial board');
-   my $move_result = $foo_state->attempt_move(
-      color => 'b',
-      node => [0,0],
+   my $state1 = $plane_rm->initial_state;
+   my $state2 = Games::Go::Cinderblock::State->new(
+      rulemap => $plane_rm,
+      board => [[qw/w b/],[qw[w 0]]],
+      _captures => {b=>45, w=>118},
+      turn => 'w',
    );
-   ok($move_result->succeeded, '1st move success on initial state');
-   my $delta = $move_result->delta;
-#   isa_ok($delta, 'Games::Go::Cinderblock::Delta');
-   is(ref $delta, 'HASH');
-   is(scalar(@{$delta->{remove}}), 0, 'delta doesn\'t remove anything.');
-   is(scalar(@{$delta->{add}}), 1, 'delta adds one thing.');
-   is_deeply($delta->{add}, [[b=>[0,0]]], 'delta adds one thing.');
-   my $bar_state = $move_result->resulting_state;
-   isa_ok($bar_state, 'Games::Go::Cinderblock::State');
-}
-{
-   my $tor_rm = Games::Go::Cinderblock::Rulemap::Rect->new(
-      w=>3,      h=>3,
-      wrap_v => 1,
+   my $delta1 = $state1->delta_to($state2);
+   my $delta2 = $state1->delta_from($state2);
+
+   is_deeply($delta1->board_addition('b'), [[0,1]], 'delta board addition for sp. color');
+   is($delta1->board_removal('b'), undef, 'delta board lack of removal for sp. color');
+   is($delta2->board_addition, undef, 'rev delta board lack addition for sp. color');
+   is_deeply($delta2->board_removal->{w}, [[0,0],[1,0]] , 'rev delta board removal for sp. color');
+   use Data::Dumper;
+#   die Dumper($delta1->board);
+   is_deeply($state1->delta_to($state2)->board, {add => {b =>[[0,1]], w=>[[0,0],[1,0]]}}, 
+      'complicated board delta structure');
+   #now turn
+   is_deeply($delta1->turn, {before=>'b',after=>'w'}, 'turn change.');
+   is_deeply($delta2->turn, {before=>'w',after=>'b'}, 'rev turn change');
+   #now caps
+   is_deeply(
+      $delta1->captures('b') // 'notdefined', #is_deeply craps out with undef?
+      {before=>0,after=>45}, 
+      'b captures change'
    );
-   my $board1 = [
-      [qw/b 0 w/],
-      [qw/0 0 0/],
-      [qw/w 0 b/],
-   ];
-   my $board2 = [
-      [qw/0 b 0/],
-      [qw/0 b 0/],
-      [qw/0 b 0/],
-   ];
-   my $delta = $tor_rm->delta($board1,$board2);
-   # whatever. i don't feel like id'ing, ordering, & testing 4 distinct lists,
-   # delta works well enough, i daresay
+   is_deeply(
+      $delta2->captures // 'notdefined',
+      {b=>{before=>45,after=>0},w=>{before=>118,after=>0}},
+      'app caps change.'
+   );
 }
 
 done_testing;

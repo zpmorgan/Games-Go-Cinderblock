@@ -22,6 +22,11 @@ has turn => (
    is => 'rw',
    isa => 'Str',
 );
+has _captures => (
+   isa => 'HashRef',
+   is => 'ro',
+   default => sub{{w=>0,b=>0}},
+);
 
 sub attempt_move{
    my $self = shift;
@@ -107,6 +112,24 @@ sub colors_in_nodeset{
       $colors{$stone}++;
    }
    return keys %colors;
+}
+
+sub captures{
+   my ($self,$color) = @_;
+   if($color){return $self->_captures->{$color} }
+   return $self->_captures;
+}
+
+sub delta_to{
+   my ($self, $to) = @_;
+   my $delta = $self->rulemap->delta($self,$to);
+   return $delta;
+   # my %changes;
+   # {board}, {turn}, {captures}
+}
+sub delta_from{
+   my ($self,$from) = @_;
+   return $from->delta_to($self);
 }
 
 1;
