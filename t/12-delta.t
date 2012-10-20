@@ -22,8 +22,6 @@ use Games::Go::Cinderblock::Rulemap::Rect;
    is($delta1->board_removal('b'), undef, 'delta board lack of removal for sp. color');
    is($delta2->board_addition, undef, 'rev delta board lack addition for sp. color');
    is_deeply($delta2->board_removal->{w}, [[0,0],[1,0]] , 'rev delta board removal for sp. color');
-   use Data::Dumper;
-#   die Dumper($delta1->board);
    is_deeply($state1->delta_to($state2)->board, {add => {b =>[[0,1]], w=>[[0,0],[1,0]]}}, 
       'complicated board delta structure');
    #now turn

@@ -486,29 +486,6 @@ sub _compare_boards{
       }
    }
    return \%changeset;
-
-   # FOO:
-   my @remove;
-   my @add;
-   for my $node ($self->all_nodes){
-      my $fore = $self->stone_at_node($board1, $node); #0,w,b,etc
-      my $afte = $self->stone_at_node($board2, $node);
-      if ($fore ne $afte){
-         my $n = $self->node_to_string($node);
-         if (!$fore){
-            push @add, [$afte => $node];
-         }
-         elsif (!$afte){
-            push @remove, [$fore => $node];
-         }
-         else{
-            # die 'replacement? no thanks.';
-            push @remove, [$fore => $node];
-            push @add, [$afte => $node];
-         }
-      }
-   }
-   return {remove => \@remove, add => \@add};
 }
 
 1;
