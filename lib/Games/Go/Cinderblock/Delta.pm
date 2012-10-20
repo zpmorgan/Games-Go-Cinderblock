@@ -34,6 +34,22 @@ has _captures => (
    predicate => 'diff_captures',
 );
 
+around BUILDARGS => sub {
+   my $orig  = shift;
+   my $class = shift;
+   my %args = @_;
+   if($args{captures}){
+      $args{_captures} = delete $args{captures};
+   }
+   if($args{turn}){
+      $args{_turn} = delete $args{turn};
+   }
+   if($args{board}){
+      $args{_board} = delete $args{board};
+   }
+   return $class->$orig(%args);
+};
+
 sub board{
    my $self = shift;
    die 'no color' if shift;

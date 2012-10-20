@@ -449,15 +449,15 @@ sub delta{
    my %deltargs;
 
    my $board_changeset = $self->_compare_boards( $state1->board, $state2->board );
-   $deltargs{_board} = $board_changeset if %$board_changeset;
+   $deltargs{board} = $board_changeset if %$board_changeset;
    if($state1->turn ne $state2->turn){
-      $deltargs{_turn} = {before=>$state1->turn,after=>$state2->turn};
+      $deltargs{turn} = {before=>$state1->turn,after=>$state2->turn};
    }
    if($state1->captures('w') != $state2->captures('w')){
-      $deltargs{_captures}{w} = {before=>$state1->captures('w'),after=>$state2->captures('w')};
+      $deltargs{captures}{w} = {before=>$state1->captures('w'),after=>$state2->captures('w')};
    }
    if($state1->captures('b') != $state2->captures('b')){
-      $deltargs{_captures}{b} = {before=>$state1->captures('b'),after=>$state2->captures('b')};
+      $deltargs{captures}{b} = {before=>$state1->captures('b'),after=>$state2->captures('b')};
    }
 
    my $delta = Games::Go::Cinderblock::Delta->new(
