@@ -28,6 +28,16 @@ has _captures => (
    default => sub{{w=>0,b=>0}},
 );
 
+around BUILDARGS => sub {
+   my $orig  = shift;
+   my $class = shift;
+   my %args = @_;
+   if($args{captures}){
+      $args{_captures} = delete $args{captures};
+   }
+   return $class->$orig(%args);
+};
+
 sub attempt_move{
    my $self = shift;
    my %args = @_;

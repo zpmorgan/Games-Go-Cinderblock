@@ -12,7 +12,7 @@ use Games::Go::Cinderblock::Rulemap::Rect;
    my $state2 = Games::Go::Cinderblock::State->new(
       rulemap => $plane_rm,
       board => [[qw/w b/],[qw[w 0]]],
-      _captures => {b=>45, w=>118},
+      captures => {b=>45, w=>118},
       turn => 'w',
    );
    my $delta1 = $state1->delta_to($state2);
