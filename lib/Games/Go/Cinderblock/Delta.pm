@@ -83,5 +83,45 @@ sub to_structure{
    return \%struct;
 }
 
-
 1;
+
+__END__
+
+=head1 NAME
+
+Games::Go::Cinderblock::Delta - A changeset between 2 states
+
+=head1 SYNOPSIS
+
+ my $delta = $state1->delta_to($state2);
+ my $current_turn = $delta->turn->{after};
+
+=head1 DESCRIPTION
+
+Games::Go::Cinderblock::Delta represents a set of changes
+between 2 states with the same rulemap. Each change is not necessarily
+defined; that would imply that that particular change does not occur.
+
+This class has the following basic attributes:
+
+=head3 board
+
+Format for changes on the board: C<< {color => {add => [nodes], remove => [nodes]}, ...} >>
+
+For example, a capture by black:
+C<< {b => {add => [[0,1]]}, w => {remove => [[0,0]]}} >>
+
+=head3 turn
+
+This change generally tends to occur on every move.
+
+ {before => 'b', after => 'w'}
+
+=head3 captures
+
+In the event of a capturing move, the captures value of the capturing side will change.
+
+ {b => {before => 0, after => 1}}
+
+=cut
+
