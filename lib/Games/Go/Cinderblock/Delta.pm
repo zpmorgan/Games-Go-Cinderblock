@@ -86,7 +86,7 @@ sub board_removal{
    return $self->_board->{remove};
 }
 
-sub to_structure{
+sub to_args{
    my $self = shift;
    my %struct;
    if($self->diff_board){
@@ -140,6 +140,30 @@ This change generally tends to occur on every move.
 In the event of a capturing move, the captures value of the capturing side will change.
 
  {b => {before => 0, after => 1}}
+
+=head1 METHODS
+
+=head2 to_args
+
+Decompose into arguments that could be used to initialize an identical delta.
+B<Rulemap not included.>
+
+Useful for JSON serialization.
+
+=head1 TODO
+
+=head2 time! 
+
+If states are given a timestamp, it would be <prudent> to give deltas a representation
+of the time change.
+
+2 options:
+
+Nested data structure for changes in remaining time for each player. time-system-dependent,
+but time systems would be a part of rulemap, I imagine. I like this idea.
+
+The number of milliseconds between the 2 states. This is a bad idea because it doesn't
+account for the twin paradox.
 
 =cut
 

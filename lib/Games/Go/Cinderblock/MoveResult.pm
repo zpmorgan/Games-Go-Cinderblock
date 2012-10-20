@@ -77,7 +77,7 @@ It has a L</delta>, which describes changes to the board
 
 =head2 reason
 
-If failed, this is why. e.g. 'suicide', 'collosion'
+If failed, this is why. e.g. 'suicide', 'collision'
 
 =head2 basis_state
 
