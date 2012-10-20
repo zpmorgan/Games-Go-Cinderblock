@@ -41,12 +41,12 @@ sub board{
 }
 sub turn{
    my $self = shift;
-   return unless $self->diff_turn;
+   return {} unless $self->diff_turn;
    return $self->_turn
 }
 sub captures{
    my ($self,$color) = @_;
-   return unless $self->diff_captures;
+   return {} unless $self->diff_captures;
    if($color){ return $self->_captures->{$color} }
    return $self->_captures;
 }
@@ -54,6 +54,7 @@ sub captures{
 sub board_addition{
    my $self = shift;
    my $color = shift;
+   return {} unless $self->diff_board;
    if($color){
       return $self->_board->{add}{$color}
    }
@@ -61,6 +62,7 @@ sub board_addition{
 }
 sub board_removal{
    my $self = shift;
+   return {} unless $self->diff_board;
    my $color = shift;
    if($color){
       return $self->_board->{remove}{$color}

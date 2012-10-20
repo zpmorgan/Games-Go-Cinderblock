@@ -29,12 +29,12 @@ use Games::Go::Cinderblock::Rulemap::Rect;
    is_deeply($delta2->turn, {before=>'w',after=>'b'}, 'rev turn change');
    #now caps
    is_deeply(
-      $delta1->captures('b') // 'notdefined', #is_deeply craps out with undef?
+      $delta1->captures('b') ,
       {before=>0,after=>45}, 
       'b captures change'
    );
    is_deeply(
-      $delta2->captures // 'notdefined',
+      $delta2->captures ,
       {b=>{before=>45,after=>0},w=>{before=>118,after=>0}},
       'app caps change.'
    );
