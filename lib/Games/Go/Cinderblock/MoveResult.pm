@@ -27,7 +27,7 @@ has delta => (
    lazy => 1,
    is => 'ro',
    builder => '_derive_delta',
-   isa => 'HashRef', # Games::Go::Cinderblock::Delta
+   isa => 'Games::Go::Cinderblock::Delta',
 );
 
 has succeeded => (
@@ -45,10 +45,7 @@ has reason => (
 
 sub _derive_delta{
    my $self = shift;
-   return $self->rulemap->delta(
-      $self->basis_state->board,
-      $self->resulting_state->board,
-   );
+   return $self->basis_state->delta_to($self->resulting_state);
 }
 
 # meh
@@ -90,8 +87,8 @@ If failed, this is why. e.g. 'suicide', 'collosion'
 
 L</resulting_state> minus L</basis_state>, essentially.
 
-A delta is a hashref with 'remove' & 'add' keys;
-its values are lists of [color,node] pairs...
+A delta is an object that describes changes between 2 states with
+the same rulemap.
 
 =cut
 
