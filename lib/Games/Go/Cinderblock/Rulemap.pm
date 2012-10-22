@@ -156,10 +156,15 @@ sub evaluate_move_attempt{
    for my $cap(@$caps){ # just erase captured stones
       $self->set_stone_at_node ($newboard, $cap, 0);
    }
+   my $other_color = (($color eq 'b') ? 'w' : 'b');
    my $res_stt = Games::Go::Cinderblock::State->new(
       rulemap => $self,
       board => $newboard,
-      turn => (($color eq 'b') ? 'w' : 'b'),
+      turn => $other_color,
+      captures => {
+         $color => $basis->captures->{$color} + @$caps,
+         $other_color => $basis->captures->{$other_color},
+      },
    );
    #return ($newboard, '', $caps);#no err
    return Games::Go::Cinderblock::MoveResult->new(
