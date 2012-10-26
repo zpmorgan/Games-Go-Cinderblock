@@ -59,4 +59,28 @@ use Games::Go::Cinderblock::Rulemap;
    is($succeeded6, 1, 'transanimate to revive. succeeds..');
 }
 
+# test reanimate & deanimate return values.
+{
+   # plane, 5x3.
+   my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new(
+      h=>3, w=>3,
+   );
+   my $board = [
+      [qw/0 w b/],
+      [qw/b w b/],
+      [qw/w b 0/],
+   ];
+   my $state_to_score = Games::Go::Cinderblock::State->new(
+      rulemap  => $rulemap,
+      turn => 'b',
+      board => $board,
+   );
+   my $scorable = $state_to_score->scorable;
+
+   ok($scorable->deanimate([1,0]), 'deanimating alive thing returns positive.');
+   ok(! $scorable->deanimate([1,0]), 'deanimating dead thing returns neg.');
+   ok($scorable->reanimate([1,0]), 'reanimating dead thing returns positive.');
+   ok(! $scorable->reanimate([1,0]), 'reanimating alive thing returns neg.');
+}
+
 done_testing;

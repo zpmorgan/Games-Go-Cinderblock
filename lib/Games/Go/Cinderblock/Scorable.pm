@@ -157,6 +157,8 @@ sub reanimate{ #dead -> alive
    my ($self,$node) = @_;
    my $stone = $self->state->at_node($node);
    die "no stone at @$node..." unless $stone;
+   
+   return 0 if $self->node_animated($node);
 
    my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
    my $new_ambiguous_space = $self->state->floodfill(sub{$_ ne $bounded_color}, $node);
@@ -185,6 +187,8 @@ sub deanimate{ #alive -> dead
    my ($self,$node) = @_;
    my $stone = $self->state->at_node($node);
    die "no stone at @$node..." unless $stone;
+
+   return 0 unless $self->node_animated($node);
 
    my $bounded_color = ($stone eq 'w') ? 'b' : 'w';
    my $new_known_terr = $self->state->floodfill(sub{$_ ne $bounded_color}, $node);
