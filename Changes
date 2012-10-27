@@ -1,3 +1,8 @@
+0.09   October ??, 2012
+    reanimate/deanimate return values:
+      - true if transanimation occurs, false otherwise.
+    Change scorable->terr to not include dead stones of the other color.
+
 0.08   October 22, 2012
     Delta captures tracking fixes.
 

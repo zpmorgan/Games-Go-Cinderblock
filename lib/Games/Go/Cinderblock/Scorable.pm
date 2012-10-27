@@ -253,9 +253,10 @@ sub territory{
    my $derived = $self->_derived_terr->{$color};
    die unless $derived;
    # TODO: implications of sharing dead stones between multiple other colors.
-   my $other_color = $color eq 'b' ? 'w' : 'b';
-   my $deads_as_territory = $self->_dead->{$other_color};
-   return $known->union($derived)->union($deads_as_territory);
+#   my $other_color = $color eq 'b' ? 'w' : 'b';
+   # todo: this, correctly:
+   #my $deads_as_territory = $self->_dead->{$other_color};
+   return $known->union($derived); #->union($deads_as_territory);
 }
 sub dame{
    my $self = shift;
@@ -375,8 +376,10 @@ Returns a L<Games::Go::Cinderblock::NodeSet> of contiguous empty regions bounded
 
 =head2 territory($color)
 
-Returns a nodeset of known & perceived territory, including nodes
-occupied by L<dead|/dead> stones of the opposite color
+Returns a nodeset of known & perceived territory.
+
+B<Excludes> nodes occupied by L<dead|/dead> 
+stones of the opposite color
 
 =head2 dead ($color)
 

@@ -32,7 +32,7 @@ use Games::Go::Cinderblock::Rulemap;
    is( $scorable->dead('b')->count, 3, '3 b dead after transanimation');
    is( $scorable->dead('w')->count, 0, 'b transanimated. w unscathed.');
    is( $scorable->territory('b')->count, 0, '0 b terr. Gone from board.');
-   is( $scorable->territory('w')->count, 7, '7 w terr nodeset now.');
+   is( $scorable->territory('w')->count, 4, '4 w terr nodeset now.');
    is( $scorable->dame->count, 0, 'no dame now; all white\'s.');
 
    my $succeeded2= $scorable->deanimate([1,2]);
@@ -49,7 +49,7 @@ use Games::Go::Cinderblock::Rulemap;
    my $succeeded4= $scorable->deanimate([1,2]); #kill w
    is($succeeded4, 1, 'deanimation w now no fail');
    is( $scorable->dame->count, 0, '0 dame. all b\'s');
-   is( $scorable->territory('b')->count, 7, '7 b terr, white dead..');
+   is( $scorable->territory('b')->count, 4, '4 b terr, white dead..');
    is( $scorable->territory('w')->count, 0, '0 w terr, white dead..');
 
    my $succeeded5= $scorable->transanimate([1,3]);
@@ -83,4 +83,25 @@ use Games::Go::Cinderblock::Rulemap;
    ok(! $scorable->reanimate([1,0]), 'reanimating alive thing returns neg.');
 }
 
+# test sparse board
+{
+   # plane, 5x3.
+   my $rulemap = Games::Go::Cinderblock::Rulemap::Rect->new(
+      h=>3, w=>3,
+   );
+   my $board = [
+      [qw/0 w 0/],
+      [qw/0 0 0/],
+      [qw/0 b 0/],
+   ];
+   my $state_to_score = Games::Go::Cinderblock::State->new(
+      rulemap  => $rulemap,
+      turn => 'b',
+      board => $board,
+   );
+   my $scorable = $state_to_score->scorable;
+
+   ok($scorable->deanimate([0,1]), 'deanimating alive sparse thing returns positive.');
+   is($scorable->territory('b')->count, 7, 'b has all terr on near-empty board.');
+}
 done_testing;
