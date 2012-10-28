@@ -56,7 +56,7 @@ has phase_description => (
 has komi => (
    is => 'ro',
    isa => 'Num',
-   default => '0'
+   default => '6.5'
 );
 has ko_rule => (
    is => 'ro',

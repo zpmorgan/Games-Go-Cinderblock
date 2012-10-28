@@ -263,6 +263,27 @@ sub dame{
    return $self->_dame;
 }
 
+
+sub winner{
+   my $self = shift;
+   my $scores = $self->scores;
+   # no ties for now..
+   return 'w' if $scores->{w} >= $scores->{b};
+   return 'b'
+}
+sub scores{
+   my $self = shift;
+   my %scores = (
+      w=> $self->rulemap->komi,
+      b=>0,
+   );
+   $scores{w} -= $self->dead('w')->count;
+   $scores{b} -= $self->dead('b')->count;
+   $scores{w} += $self->territory('w')->count;
+   $scores{b} += $self->territory('b')->count;
+   return \%scores;
+};
+
 1;
 
 __END__

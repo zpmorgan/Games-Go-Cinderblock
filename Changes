@@ -1,4 +1,4 @@
-0.09   October ??, 2012
+0.09   October 27, 2012
     reanimate/deanimate return values:
       - true if transanimation occurs, false otherwise.
     Change scorable->terr to not include dead stones of the other color.
