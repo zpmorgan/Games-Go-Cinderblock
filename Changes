@@ -1,3 +1,6 @@
+0.11   October 28, 2012
+    I don't like how the old version (0.10) stringified to 0.1
+
 0.10   October 28, 2012
     Default komi of 6.5
     Scorable has score & winner methods.
