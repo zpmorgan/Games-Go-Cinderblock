@@ -281,6 +281,9 @@ sub scores{
    $scores{b} -= $self->dead('b')->count;
    $scores{w} += $self->territory('w')->count;
    $scores{b} += $self->territory('b')->count;
+   # dead nodes == additional terr 
+   $scores{w} += $self->dead('b')->count;
+   $scores{b} += $self->dead('w')->count;
    return \%scores;
 };
 
